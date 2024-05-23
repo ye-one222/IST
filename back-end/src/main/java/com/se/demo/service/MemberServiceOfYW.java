@@ -17,7 +17,7 @@ public class MemberServiceOfYW {
 
     //로그인 기능
     public MemberEntityOfYW login(MemberDTOOfYW req){ //LoginRequest
-        Optional<MemberEntityOfYW> optionalMember = memberRepositoryOfYW.findByLoginNickname(req.getLoginNickname());
+        Optional<MemberEntityOfYW> optionalMember = memberRepositoryOfYW.findByNickname(req.getNickname());
 
         //loginId와 일치하는 사용자가 없으면 null return
         if(optionalMember.isEmpty()){
@@ -46,10 +46,10 @@ public class MemberServiceOfYW {
 
     //loginNickname(String)을 입력받아 memberEntity를 return함
     //로그인한 상태인지 확인?
-    public MemberEntityOfYW getLoginUserByLoginNickname(String loginNickname){
-        if(loginNickname == null) return null;
+    public MemberEntityOfYW getLoginUserByLoginNickname(String nickname){
+        if(nickname == null) return null;
 
-        Optional<MemberEntityOfYW> optionalMemberEntityOfYW = memberRepositoryOfYW.findByLoginNickname(loginNickname);
+        Optional<MemberEntityOfYW> optionalMemberEntityOfYW = memberRepositoryOfYW.findByNickname(nickname);
         if(optionalMemberEntityOfYW.isEmpty()) return null;
 
         return optionalMemberEntityOfYW.get();

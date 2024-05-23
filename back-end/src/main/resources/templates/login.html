@@ -11,8 +11,8 @@
     <h2>로그인</h2>
     <form th:method="post" th:action="|@{/{loginType}/login (loginType=${loginType})}|" th:object="${memberDTOOfYW}">
         <div>
-            <label th:for="loginNickname">로그인 아이디 : </label>
-            <input type="text" th:field="*{loginNickname}"/>
+            <label th:for="nickname">로그인 아이디 : </label>
+            <input type="text" th:field="*{nickname}"/>
         </div>
         <br/>
         <div>

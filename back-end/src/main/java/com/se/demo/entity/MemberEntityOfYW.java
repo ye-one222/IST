@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "user")
 public class MemberEntityOfYW {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //자동으로 ++됨
@@ -17,7 +18,6 @@ public class MemberEntityOfYW {
 
     @Column(unique = true)
     private String nickname;
-    private String loginNickname;
     @Column
     private String password;
 }

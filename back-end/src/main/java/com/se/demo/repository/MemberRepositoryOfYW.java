@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface MemberRepositoryOfYW extends JpaRepository<MemberEntityOfYW, Integer> {
     //boolean
-    Optional<MemberEntityOfYW> findByLoginNickname(String loginNickname);
+    //Optional<MemberEntityOfYW> findByLoginNickname(String loginNickname);
     Optional<MemberEntityOfYW> findByNickname(String nickname);
 }
