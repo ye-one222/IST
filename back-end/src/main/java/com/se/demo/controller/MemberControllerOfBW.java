@@ -24,6 +24,6 @@ public class MemberControllerOfBW {
     public String signup(MemberDTOOfBW memberDTOOfBW){
         System.out.println(memberDTOOfBW);
         memberServiceOfBW.signup(memberDTOOfBW);
-        return "login";
+        return "indexBw";
     }
 }

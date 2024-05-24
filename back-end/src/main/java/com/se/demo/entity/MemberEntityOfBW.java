@@ -16,7 +16,7 @@ public class MemberEntityOfBW {
 
     @Id //pk값이라고 알려줌
     @Column(nullable = false)   //하나의 컬럼이다??
-    //@GeneratedValue(strategy = GenerationType.IDENTITY) //자동 아이디 생성해준대
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //자동 아이디 생성해준대
     private int user_id;
 
     @Column(unique = true, nullable = false)
@@ -28,8 +28,8 @@ public class MemberEntityOfBW {
     //Dto를 Entity로
     public static MemberEntityOfBW toMemberEntityBW(MemberDTOOfBW memberDTOOfBW) {
         MemberEntityOfBW memberEntityOfBW = new MemberEntityOfBW();
-        memberEntityOfBW.setUser_id(memberDTOOfBW.getId());
-        memberEntityOfBW.setNickname(memberDTOOfBW.getNickName());
+        memberEntityOfBW.setUser_id(memberDTOOfBW.getUser_id());
+        memberEntityOfBW.setNickname(memberDTOOfBW.getNickname());
         memberEntityOfBW.setPassword(memberDTOOfBW.getPassword());
         return memberEntityOfBW;
     }

@@ -8,9 +8,9 @@ import lombok.Setter;
 public class MemberDTOOfBW {
     //view와 소통
 
- private int id;
+ private int user_id;
 
- private String nickName;
+ private String nickname;
 
  private String password;
 
