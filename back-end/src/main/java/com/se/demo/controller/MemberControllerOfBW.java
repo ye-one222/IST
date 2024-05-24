@@ -1,5 +1,5 @@
 package com.se.demo.controller;
-
+/*
 import com.se.demo.dto.MemberDTOOfBW;
 import com.se.demo.service.MemberServiceOfBW;
 import lombok.RequiredArgsConstructor;
@@ -15,15 +15,16 @@ public class MemberControllerOfBW {
     //하나를 상속한 여러클래스의 동일한
     private final MemberServiceOfBW memberServiceOfBW;
     @Bean
-    @GetMapping("/")   //이 url에서 get요청 올때
+    @GetMapping("/signup")   //이 백url에서 get요청 올때
     public String signupForm(){
-        return "indexBw";   //indexBw html 가져와라
+        return "home";   //indexBw html 가져와라
     }
 
-    @PostMapping("/")   //이 url에서 post요청올떄
+    @PostMapping("/signup")   //이 백url에서 post요청올떄
     public String signup(MemberDTOOfBW memberDTOOfBW){
         System.out.println(memberDTOOfBW);
         memberServiceOfBW.signup(memberDTOOfBW);
-        return "indexBw";
+        return "login";
     }
 }
+*/

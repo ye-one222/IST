@@ -1,5 +1,5 @@
 package com.se.demo.entity;
-
+/*
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,3 +21,4 @@ public class MemberEntityOfYW {
     @Column
     private String password;
 }
+*/

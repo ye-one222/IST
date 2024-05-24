@@ -19,6 +19,11 @@
         <button th:onclick="|location.href='@{/{loginType}/admin (loginType=${loginType})}'|">관리자 페이지</button> <br/><br/>
         <button th:onclick="|location.href='@{/{loginType}/logout (loginType=${loginType})}'|">로그아웃</button>
     </div>
+    <form action="/signup" method ="post">
+        닉네임: <input type="text" name="nickname"><br>
+        비밀번호: <input type="password" name="password"><br>
+        <input type="submit" value="회원가입">
+    </form>
 </div>
 </body>
 </html>

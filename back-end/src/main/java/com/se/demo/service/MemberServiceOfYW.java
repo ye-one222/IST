@@ -1,5 +1,5 @@
 package com.se.demo.service;
-
+/*
 import com.se.demo.dto.MemberDTOOfYW;
 import com.se.demo.entity.MemberEntityOfYW;
 import com.se.demo.repository.MemberRepositoryOfYW;
@@ -55,3 +55,4 @@ public class MemberServiceOfYW {
         return optionalMemberEntityOfYW.get();
     }
 }
+*/

@@ -1,5 +1,5 @@
 package com.se.demo.service;
-
+/*
 import com.se.demo.dto.MemberDTOOfBW;
 import com.se.demo.entity.MemberEntityOfBW;
 import com.se.demo.repository.MemberRepositoryOfBW;
@@ -19,3 +19,4 @@ public class MemberServiceOfBW {
         memberRepositoryOfBW.save(memberEntityOfBW);
     }
 }
+*/

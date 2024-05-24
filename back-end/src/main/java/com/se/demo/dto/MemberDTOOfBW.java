@@ -1,6 +1,7 @@
 package com.se.demo.dto;
-
+/*
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
@@ -15,7 +16,4 @@ public class MemberDTOOfBW {
  private String password;
 
 }
-
-/*
-class AdminDTOOfBW extends MemberDTOOfBW{
-}*/
+*/

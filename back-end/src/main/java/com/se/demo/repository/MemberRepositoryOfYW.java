@@ -1,5 +1,5 @@
 package com.se.demo.repository;
-
+/*
 import com.se.demo.entity.MemberEntityOfYW;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -10,3 +10,4 @@ public interface MemberRepositoryOfYW extends JpaRepository<MemberEntityOfYW, In
     //Optional<MemberEntityOfYW> findByLoginNickname(String loginNickname);
     Optional<MemberEntityOfYW> findByNickname(String nickname);
 }
+*/
