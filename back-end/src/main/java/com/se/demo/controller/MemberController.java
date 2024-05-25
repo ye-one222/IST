@@ -31,6 +31,12 @@ public class MemberController {
         memberService.signup(memberDTO);
         return "login";
     }
+    @PostMapping("/check")
+    public ResponseEntity<?> check(@RequestBody MemberDTO memberDTO){
+        boolean isAvailable = memberService.checkId(memberDTO.getId());
+        return ResponseEntity.ok(ApiUtils.success(isAvailable));
+
+    }
 
     @GetMapping(value = {"", "/"})
     public String home(Model model, @SessionAttribute(name="userNickname", required = false) String userNickname){
