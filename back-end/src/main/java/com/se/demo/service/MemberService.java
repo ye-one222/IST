@@ -60,4 +60,8 @@ public class MemberService {
         return optionalMemberEntity.get();
     }
 
+    public boolean checkId(String id) {
+        return memberRepository.existsById(Integer.parseInt(id));
+    }
+
 }
