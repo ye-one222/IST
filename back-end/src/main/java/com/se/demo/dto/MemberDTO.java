@@ -11,4 +11,8 @@ public class MemberDTO {
     private String nickname;
 
     private String password;
+
+    public String getId() {
+        return String.valueOf(user_id);
+    }
 }
