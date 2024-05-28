@@ -28,7 +28,7 @@ public class IssueDTO {
     private int pl_id;
 
     private List<CommentResponse> comments;
-    private ProjectDTO project;
+    private int project_id;
 
    public IssueDTO(){
         state = "new";

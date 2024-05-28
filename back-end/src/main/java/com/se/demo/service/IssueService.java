@@ -2,6 +2,7 @@ package com.se.demo.service;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.repository.IssueRepository;
+import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -19,10 +20,12 @@ import java.util.stream.Collectors;
 @Setter
 public class IssueService {
     public final IssueRepository issueRepository;
+    public final ProjectRepository projectRepository;
 
     public IssueEntity createIssue(IssueDTO issueDTO){
-
+        System.out.println("PROJECTID:"+issueDTO.getProject_id());
         IssueEntity issueEntity = toIssueEntity(issueDTO);
+
         //레포에 함수가 있는지 알아봐야게따 save가 insert하는거네
         issueRepository.save(issueEntity);
         return issueEntity;
@@ -66,6 +69,9 @@ public class IssueService {
         issueDTO.setPl_id(issueEntity.getPlId());
         issueDTO.setReporter_id(issueEntity.getReporterId());
         issueDTO.setState(issueEntity.getState());
+
+        issueDTO.setProject_id(issueEntity.getProject().getId());
+
         return issueDTO;
     }
 
@@ -73,18 +79,22 @@ public class IssueService {
         return new IssueDTO(issueEntity);
     }*/
 
-    public static IssueEntity toIssueEntity(IssueDTO issueDTO) {
+    //public static IssueEntity toIssueEntity(IssueDTO issueDTO) {
+    public IssueEntity toIssueEntity(IssueDTO issueDTO) { //static 빼도 되나여
         IssueEntity issueEntity = new IssueEntity();
         issueEntity.id = issueDTO.getId();
         issueEntity.title = issueDTO.getTitle();
         issueEntity.description = issueDTO.getDescription();
         issueEntity.reporterId = issueDTO.getReporter_id();
-
         issueEntity.fixerId = issueDTO.getFixer_id();
         issueEntity.assigneeId = issueDTO.getAssignee_id();
         issueEntity.priority = issueDTO.getPriority();
         issueEntity.state = issueDTO.getState();
         issueEntity.plId = issueDTO.getPl_id();
+
+        issueEntity.project = projectRepository.findById(issueDTO.getProject_id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));;
+
         return issueEntity;
     }
 }

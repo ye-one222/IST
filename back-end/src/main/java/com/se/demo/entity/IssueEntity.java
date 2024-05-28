@@ -52,6 +52,6 @@ public class IssueEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    private ProjectEntity project;
+    public ProjectEntity project;
 
 }
