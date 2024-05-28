@@ -1,6 +1,7 @@
 package com.se.demo.dto;
 
 import com.se.demo.entity.IssueEntity;
+import com.se.demo.entity.ProjectEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,7 @@ public class IssueDTO {
     private int pl_id;
 
     private List<CommentResponse> comments;
+    private ProjectDTO project;
 
    public IssueDTO(){
         state = "new";
