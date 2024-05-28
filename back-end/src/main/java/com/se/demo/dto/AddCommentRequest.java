@@ -3,6 +3,7 @@ package com.se.demo.dto;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -15,6 +16,7 @@ import com.se.demo.entity.CommentEntity; // 본인의 Comment 엔티티를 임�
 @NoArgsConstructor
 @Getter
 @AllArgsConstructor
+@Data
 
 public class AddCommentRequest {
     private MemberEntity createrId;
