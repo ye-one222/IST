@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 
-
 public class IssueDTO {
 
     private int id;

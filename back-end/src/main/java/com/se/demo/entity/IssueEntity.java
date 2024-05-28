@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,6 +50,8 @@ public class IssueEntity extends BaseEntity {
     @OneToMany(mappedBy = "issue", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private List<CommentEntity> comments;  // mappedBy를 issue로 설정
 
-
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
 
 }
