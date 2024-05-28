@@ -52,7 +52,7 @@ public class IssueEntity extends BaseEntity {
     private List<CommentEntity> comments;  // mappedBy를 issue로 설정
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @JoinColumn(name = "project_id",nullable = false)
     private ProjectEntity project;
 
 }

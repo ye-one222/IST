@@ -1,4 +1,5 @@
 package com.se.demo.service;
+import com.se.demo.dto.ChangeIssueStateRequest;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.repository.IssueRepository;
@@ -23,15 +24,13 @@ public class IssueService {
     public final ProjectRepository projectRepository;
 
     public IssueEntity createIssue(IssueDTO issueDTO){
-        System.out.println("PROJECTID:"+issueDTO.getProject_id());
+        //System.out.println("PROJECTID:"+issueDTO.getProject_id());
         IssueEntity issueEntity = toIssueEntity(issueDTO);
-
-        //레포에 함수가 있는지 알아봐야게따 save가 insert하는거네
         issueRepository.save(issueEntity);
         return issueEntity;
     }
 
-    public IssueDTO findbyId(Integer id){
+    public IssueDTO findById(Integer id){
         Optional<IssueEntity> optionalIssueEntity = issueRepository.findById(id);
         if(optionalIssueEntity.isPresent()){
             IssueEntity issueEntity = optionalIssueEntity.get();
@@ -41,7 +40,7 @@ public class IssueService {
         }
     }
 
-    /*public List<IssueDTO> findMyIssues(Integer user_id){
+    public List<IssueDTO> findMyIssues(Integer user_id){
         Optional<List<IssueEntity>> optionalIssueEntities = Optional.ofNullable(issueRepository.findByReporterIdOrAssigneeIdOrPlId(user_id, user_id, user_id));
         if(optionalIssueEntities.isPresent()){
             List<IssueEntity> issueEntities = optionalIssueEntities.get();
@@ -53,8 +52,13 @@ public class IssueService {
         }else{
             return null;
         }
-    }*/
+    }
 
+    public IssueDTO updateIssue(IssueDTO issueDTO){
+        IssueEntity issueEntity = toIssueEntity(issueDTO);
+        issueRepository.save(issueEntity);
+        return IssueService.toIssueDTO(issueEntity);
+    }
 
 
     public static IssueDTO toIssueDTO(IssueEntity issueEntity){
@@ -75,11 +79,7 @@ public class IssueService {
         return issueDTO;
     }
 
-   /* public static IssueDTO toIssueDTO(IssueEntity issueEntity){
-        return new IssueDTO(issueEntity);
-    }*/
 
-    //public static IssueEntity toIssueEntity(IssueDTO issueDTO) {
     public IssueEntity toIssueEntity(IssueDTO issueDTO) { //static 빼도 되나여
         IssueEntity issueEntity = new IssueEntity();
         issueEntity.setId(issueDTO.getId());
@@ -96,23 +96,5 @@ public class IssueService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID")));;
 
         return issueEntity;
-    }
-
-    // 이슈 상태를 assigned로 변경하는 메서드
-    public boolean changeIssueStateToAssigned(int issueId, int userId, String state) {
-
-        return true; // 임시로 true를 반환하도록 설정하였습니다.
-    }
-
-    public boolean changeIssueStateToResolved(int issueId, int userId, String state) {
-        return true;
-    }
-
-    public boolean changeIssueStateToClosed(int issueId, int userId, String state) {
-        return true;
-    }
-
-    public boolean changeIssueStateToReopened(int issueId, int userId, String state) {
-        return true;
     }
 }
