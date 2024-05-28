@@ -7,6 +7,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -29,6 +32,9 @@ public class MemberEntity {
     @Column
     private String password;
 
+    @ManyToMany(mappedBy = "members") // 연결테이블과 연관있음을 표시
+    private List<ProjectEntity> projects = new ArrayList<>();
+
     //Dto를 Entity로
     public static MemberEntity toMemberEntityBW(MemberDTO memberDTOOfBW) {
         MemberEntity memberEntityOfBW = new MemberEntity();
@@ -37,5 +43,5 @@ public class MemberEntity {
         memberEntityOfBW.setPassword(memberDTOOfBW.getPassword());
         return memberEntityOfBW;
     }
-
 }
+

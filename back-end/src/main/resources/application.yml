@@ -20,3 +20,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+#에러페이지 비활성화
+      server:
+        error:
+          whitelabel:
+            enabled=false:

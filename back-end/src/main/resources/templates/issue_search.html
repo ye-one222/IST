@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Search Issues</title>
+</head>
+<body>
+<h1>Search Issues</h1>
+<form action="/api/comments/search" method="get">
+    <label for="state">Issue State:</label>
+    <input type="text" id="state" name="Istate" required>
+    <button type="submit">Search</button>
+</form>
+<div th:if="${searchList}">
+    <h2>Search Results</h2>
+    <div th:each="issue : ${searchList}">
+        <p><strong>Issue ID:</strong> <span th:text="${issue.id}"></span></p>
+        <p><strong>State:</strong> <span th:text="${issue.state}"></span></p>
+        <p><strong>Description:</strong> <span th:text="${issue.description}"></span></p>
+    </div>
+</div>
+</body>
+</html>

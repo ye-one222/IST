@@ -3,10 +3,12 @@ package com.se.demo.controller;
 import com.se.demo.dto.MemberDTO;
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.service.MemberService;
+import com.se.demo.utils.ApiUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -31,6 +33,7 @@ public class MemberController {
         memberService.signup(memberDTO);
         return "login";
     }
+
     @PostMapping("/check")
     public ResponseEntity<?> check(@RequestBody MemberDTO memberDTO){
         boolean isAvailable = memberService.checkId(memberDTO.getId());
@@ -89,3 +92,4 @@ public class MemberController {
         return "redirect:/session-login";
     }
 }
+

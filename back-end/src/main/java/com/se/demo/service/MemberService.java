@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
 import java.util.Optional;
 @Service
 @Transactional
@@ -22,12 +23,10 @@ public class MemberService {
 
     //login
     public MemberEntity login(MemberDTO req){ //LoginRequest
-        Optional<MemberEntity> optionalMember = memberRepository.findByNickname(req.getNickname());
+        Optional<MemberEntity> optionalMember = MemberRepository.findByNickname(req.getNickname());
 
         //loginId와 일치하는 사용자가 없으면 null return
-        if(optionalMember.isEmpty()){
-            return null;
-        }
+        assert Objects.requireNonNull(optionalMember).isPresent();
 
         MemberEntity memberEntity = optionalMember.get();
 
@@ -43,7 +42,7 @@ public class MemberService {
     public MemberEntity getLoginUserById(String userNickname){
         if(userNickname == null) return null;
 
-        Optional<MemberEntity> optionalMemberEntityOfYW = memberRepository.findByNickname(userNickname);
+        Optional<MemberEntity> optionalMemberEntityOfYW = MemberRepository.findByNickname(userNickname);
         if(optionalMemberEntityOfYW.isEmpty()) return null;
 
         return optionalMemberEntityOfYW.get();
@@ -54,7 +53,7 @@ public class MemberService {
     public MemberEntity getLoginUserByLoginNickname(String nickname){
         if(nickname == null) return null;
 
-        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByNickname(nickname);
+        Optional<MemberEntity> optionalMemberEntity = MemberRepository.findByNickname(nickname);
         if(optionalMemberEntity.isEmpty()) return null;
 
         return optionalMemberEntity.get();
