@@ -88,4 +88,17 @@ public class IssueController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
         }
     }
+
+    @GetMapping("/search")
+    public List<IssueDTO> search(@RequestParam String keyword) {
+        return issueService.search(keyword);
+    }
+    /* 이건 JSON으로 요청받는 버전
+    @PostMapping("/search")
+    public List<IssueDTO> search(@RequestBody Map<String, String> body) {
+        String keyword = body.get("keyword");
+        // keyword를 사용하여 검색 작업 수행
+        return yourSearchService.search(keyword);
+    }*/
+
 }
