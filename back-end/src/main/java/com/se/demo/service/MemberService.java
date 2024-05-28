@@ -16,17 +16,20 @@ public class MemberService {
     public final MemberRepository memberRepository;
 
     //회원가입 (조건 확인 X)
-    public void signup(MemberDTO memberDTO){
+    public MemberEntity signup(MemberDTO memberDTO){
         MemberEntity memberEntity = MemberEntity.toMemberEntityBW(memberDTO);
-        memberRepository.save(memberEntity);
+        return memberRepository.save(memberEntity);
     }
 
     //login
     public MemberEntity login(MemberDTO req){ //LoginRequest
-        Optional<MemberEntity> optionalMember = MemberRepository.findByNickname(req.getNickname());
+        //Optional<MemberEntity> optionalMember = MemberRepository.findByNickname(req.getNickname());
+        Optional<MemberEntity> optionalMember = memberRepository.findByNickname(req.getNickname());
 
         //loginId와 일치하는 사용자가 없으면 null return
-        assert Objects.requireNonNull(optionalMember).isPresent();
+        if(optionalMember.isEmpty()){
+            return null;
+        }
 
         MemberEntity memberEntity = optionalMember.get();
 
@@ -38,11 +41,21 @@ public class MemberService {
         return memberEntity;
     }
 
+    public MemberDTO toMemberDTO(MemberEntity memberEntity) {
+        MemberDTO memberDTO = new MemberDTO();
+        memberDTO.setUser_id(memberEntity.getUser_id());
+        memberDTO.setNickname(memberEntity.getNickname());
+        memberDTO.setPassword(memberEntity.getPassword());
+        //memberDTO.setProjects(toProjectDTOList(memberEntity.getProjects())); 이거 있어야 나의 project의 member의 project 정보가 올바르게 나오는데, 이거 실행하면 스택오버플로우 발생해서.. 그리고 내 동료의 project들을 내가 굳이 알아야 할 필요는 없잖앙
+        return memberDTO;
+    }
+
     //nickname(String)을 입력받아 memberEntity를 return함
     public MemberEntity getLoginUserById(String userNickname){
         if(userNickname == null) return null;
 
-        Optional<MemberEntity> optionalMemberEntityOfYW = MemberRepository.findByNickname(userNickname);
+        //Optional<MemberEntity> optionalMemberEntityOfYW = MemberRepository.findByNickname(userNickname);
+        Optional<MemberEntity> optionalMemberEntityOfYW = memberRepository.findByNickname(userNickname);
         if(optionalMemberEntityOfYW.isEmpty()) return null;
 
         return optionalMemberEntityOfYW.get();
@@ -53,7 +66,8 @@ public class MemberService {
     public MemberEntity getLoginUserByLoginNickname(String nickname){
         if(nickname == null) return null;
 
-        Optional<MemberEntity> optionalMemberEntity = MemberRepository.findByNickname(nickname);
+        //Optional<MemberEntity> optionalMemberEntity = MemberRepository.findByNickname(nickname);
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByNickname(nickname);
         if(optionalMemberEntity.isEmpty()) return null;
 
         return optionalMemberEntity.get();

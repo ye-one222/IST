@@ -13,6 +13,7 @@ import com.se.demo.dto.ChangeIssueStateRequest;
 
 
 import java.util.List;
+
 import java.util.Objects;
 
 @Setter
@@ -87,5 +88,4 @@ public class IssueController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
         }
     }
-
 }

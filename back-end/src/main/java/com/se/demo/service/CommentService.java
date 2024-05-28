@@ -30,7 +30,8 @@ public class CommentService {
 
     public CommentResponse save(AddCommentRequest request, String nickName, int issueId) {
         IssueEntity issueEntity = null;
-        Optional<MemberEntity> member = MemberRepository.findByNickname(nickName);
+        //Optional<MemberEntity> member = MemberRepository.findByNickname(nickName);
+        Optional<MemberEntity> member = memberRepository.findByNickname(nickName);
         if (member.isEmpty()) {
             throw new IllegalArgumentException("Invalid user nickname");
         }
