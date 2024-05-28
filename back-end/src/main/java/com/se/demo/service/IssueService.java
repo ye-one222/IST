@@ -82,19 +82,37 @@ public class IssueService {
     //public static IssueEntity toIssueEntity(IssueDTO issueDTO) {
     public IssueEntity toIssueEntity(IssueDTO issueDTO) { //static 빼도 되나여
         IssueEntity issueEntity = new IssueEntity();
-        issueEntity.id = issueDTO.getId();
-        issueEntity.title = issueDTO.getTitle();
-        issueEntity.description = issueDTO.getDescription();
-        issueEntity.reporterId = issueDTO.getReporter_id();
-        issueEntity.fixerId = issueDTO.getFixer_id();
-        issueEntity.assigneeId = issueDTO.getAssignee_id();
-        issueEntity.priority = issueDTO.getPriority();
-        issueEntity.state = issueDTO.getState();
-        issueEntity.plId = issueDTO.getPl_id();
+        issueEntity.setId(issueDTO.getId());
+        issueEntity.setTitle(issueDTO.getTitle());
+        issueEntity.setDescription(issueDTO.getDescription());
+        issueEntity.setReporterId(issueDTO.getReporter_id());
+        issueEntity.setFixerId(issueDTO.getFixer_id());
+        issueEntity.setAssigneeId(issueDTO.getAssignee_id());
+        issueEntity.setPriority(issueDTO.getPriority());
+        issueEntity.setState(issueDTO.getState());
+        issueEntity.setPlId(issueDTO.getPl_id());
 
-        issueEntity.project = projectRepository.findById(issueDTO.getProject_id())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));;
+        issueEntity.setProject(projectRepository.findById(issueDTO.getProject_id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID")));;
 
         return issueEntity;
+    }
+
+    // 이슈 상태를 assigned로 변경하는 메서드
+    public boolean changeIssueStateToAssigned(int issueId, int userId, String state) {
+
+        return true; // 임시로 true를 반환하도록 설정하였습니다.
+    }
+
+    public boolean changeIssueStateToResolved(int issueId, int userId, String state) {
+        return true;
+    }
+
+    public boolean changeIssueStateToClosed(int issueId, int userId, String state) {
+        return true;
+    }
+
+    public boolean changeIssueStateToReopened(int issueId, int userId, String state) {
+        return true;
     }
 }
