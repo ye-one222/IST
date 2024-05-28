@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>댓글 생성 및 목록</title>
+</head>
+<body>
+<h1>댓글 생성</h1>
+<form action="/api/issue/{id}/comments/create" method="post" th:object="${addCommentRequest}">
+    <!-- 숨겨진 필드로 issueId 전달 -->
+    <input type="hidden" th:field="*{issueId}" />
+    <textarea th:field="*{description}" placeholder="댓글을 입력하세요"></textarea>
+    <button type="submit">댓글 작성</button>
+</form>
+
+<h1>댓글 목록</h1>
+<ul>
+    <!-- 댓글 목록을 표시하는 부분 -->
+    <li th:each="comment : ${comments}">
+        <p th:text="${comment.description}"></p>
+    </li>
+</ul>
+</body>
+</html>
