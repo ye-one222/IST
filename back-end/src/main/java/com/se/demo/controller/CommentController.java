@@ -1,73 +1,81 @@
 package com.se.demo.controller;
 
-import com.se.demo.dto.AddCommentRequest;
-import com.se.demo.dto.CommentResponse;
+import com.se.demo.dto.CommentDTO;
+import com.se.demo.dto.IssueDTO;
+import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
+import com.se.demo.entity.MemberEntity;
+import com.se.demo.repository.MemberRepository;
 import com.se.demo.service.CommentService;
+import com.se.demo.service.IssueService;
+import com.se.demo.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import javax.xml.stream.events.Comment;
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @Controller
-
+@Setter
+@Getter
 public class CommentController {
-    //@Autowired
+
     private final CommentService commentService;
-
-
-
+    private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     // 특정 이슈의 댓글 목록 및 댓글 생성 페이지
     @GetMapping("/issue/{id}/comments")
-    public String showCommentsForIssue(@PathVariable int id, Model model) {
+    @ResponseBody
+    public ResponseEntity<List<CommentDTO>> getCommentsForIssue(@PathVariable int id) {
         try {
-            List<CommentResponse> comments = commentService.findAllByIssueId(id);
-            model.addAttribute("comments", comments);
-            model.addAttribute("issueId", id);
-            model.addAttribute("addCommentRequest", new AddCommentRequest());
-            return "issue_comments";
+            List<CommentDTO> comments = commentService.findAllByIssueId(id);
+            return ResponseEntity.ok(comments);
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("errorMessage", e.getMessage());
-            return "error";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-    // 댓글 생성
+
+
     @PostMapping("/comments/create")
-    public String saveComment(@ModelAttribute AddCommentRequest request, Principal principal, Model model) {
-        if (principal == null) {
-            model.addAttribute("errorMessage", "사용자가 인증되지 않았습니다.");
-            return "error";
-        }
-
+    @ResponseBody
+    public ResponseEntity<?> saveComment(@RequestBody CommentDTO request, HttpServletRequest httpServletRequest) {
         try {
-            int issueId = request.getIssueId();
-            String nickName = principal.getName();
-            CommentResponse savedComment = commentService.save(request, nickName, issueId);
-            return "redirect:/api/issue/" + issueId + "/comments";
+            int issueId = request.getIssue_id();
+            HttpSession httpSession = httpServletRequest.getSession();
+            String nickName = (String) httpSession.getAttribute("userNickname");
+            System.out.println(nickName);
+            CommentEntity savedCommentEntity = commentService.save(request, nickName, issueId);
+            CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
+
+            return ResponseEntity.ok(savedComment);
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("errorMessage", e.getMessage());
-            return "error";
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
-
-
-// 이슈 검색 페이지 , state로 검색
+    // 이슈 검색 페이지 , state로 검색
     @GetMapping("/search/state")
     public String showSearchPage() {
         return "issue_search";
     }
-
 
     // 이슈 검색 결과
     @GetMapping("/search/state/results")
@@ -77,12 +85,9 @@ public class CommentController {
             model.addAttribute("searchList", searchList);
             return "issue_search";
         } catch (Exception e) {
-            // 로그 출력
             e.printStackTrace();
-            // 오류 메시지를 모델에 추가하여 오류 페이지에 전달
             model.addAttribute("errorMessage", e.getMessage());
             return "error";
         }
     }
-
 }
