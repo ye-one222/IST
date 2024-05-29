@@ -1,7 +1,6 @@
 package com.se.demo.controller;
 
-import com.se.demo.dto.AddCommentRequest;
-import com.se.demo.dto.CommentResponse;
+import com.se.demo.dto.CommentDTO;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
@@ -10,6 +9,8 @@ import com.se.demo.repository.MemberRepository;
 import com.se.demo.service.CommentService;
 import com.se.demo.service.IssueService;
 import com.se.demo.service.MemberService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -41,9 +42,9 @@ public class CommentController {
     // 특정 이슈의 댓글 목록 및 댓글 생성 페이지
     @GetMapping("/issue/{id}/comments")
     @ResponseBody
-    public ResponseEntity<List<CommentResponse>> getCommentsForIssue(@PathVariable int id) {
+    public ResponseEntity<List<CommentDTO>> getCommentsForIssue(@PathVariable int id) {
         try {
-            List<CommentResponse> comments = commentService.findAllByIssueId(id);
+            List<CommentDTO> comments = commentService.findAllByIssueId(id);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
             e.printStackTrace();
@@ -54,24 +55,21 @@ public class CommentController {
 
     @PostMapping("/comments/create")
     @ResponseBody
-    public ResponseEntity<CommentResponse> saveComment(@RequestBody AddCommentRequest request, Principal principal) {
-        if (principal == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-
+    public ResponseEntity<?> saveComment(@RequestBody CommentDTO request, HttpServletRequest httpServletRequest) {
         try {
-            int issueId = request.getIssueId();
-            String nickName = principal.getName();
-            CommentResponse savedComment = commentService.save(request, nickName, issueId);
+            int issueId = request.getIssue_id();
+            HttpSession httpSession = httpServletRequest.getSession();
+            String nickName = (String) httpSession.getAttribute("userNickname");
+            System.out.println(nickName);
+            CommentEntity savedCommentEntity = commentService.save(request, nickName, issueId);
+            CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
+
             return ResponseEntity.ok(savedComment);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
-
-
-
 
     // 이슈 검색 페이지 , state로 검색
     @GetMapping("/search/state")
