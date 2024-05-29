@@ -21,12 +21,12 @@ public class IssueDTO {
     private int reporter_id;
     private LocalDateTime date;
     private int fixer_id;
-    private Integer assignee_id;
+    private int assignee_id;
     private String priority;
     private String state;
     private int pl_id;
 
-    private List<CommentResponse> comments;
+    private List<CommentDTO> comments;
     private int project_id;
 
    public IssueDTO(){
