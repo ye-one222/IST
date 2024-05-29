@@ -21,5 +21,7 @@ public interface IssueRepository  extends JpaRepository<IssueEntity, Integer> {
 
     List<IssueEntity> findByAssigneeId(int id);
 
+    List<IssueEntity> findByProjectId(int projectId);
+
     //List<IssueEntity> findByAssigneeId(String keyword);
 }
