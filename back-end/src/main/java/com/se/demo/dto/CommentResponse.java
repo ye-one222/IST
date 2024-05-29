@@ -1,8 +1,6 @@
 package com.se.demo.dto;
 
-import com.se.demo.controller.CommentController;
 import com.se.demo.entity.CommentEntity;
-import com.se.demo.entity.MemberEntity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

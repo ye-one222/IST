@@ -9,7 +9,6 @@ import com.se.demo.entity.MemberEntity;
 import com.se.demo.repository.CommentRepository;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
-import lombok.Builder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -21,39 +20,45 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
-@Builder
 
 public class CommentService {
+
 
     private final CommentRepository commentRepository;
     private final MemberRepository memberRepository;
     private final IssueRepository issueRepository; // IssueRepository를 주입 받아야 함
 
-    public CommentResponse save(AddCommentRequest request, String nickName, int issueId) {
-        //IssueEntity issueEntity = null;
-        //member 조회
-        Optional<MemberEntity> member = MemberRepository.findByNickname(nickName);
+
+
+
+   public CommentResponse save(AddCommentRequest request, String nickName, int issueId) {
+        IssueEntity issueEntity = null;
+        //Optional<MemberEntity> member = MemberRepository.findByNickname(nickName);
+        Optional<MemberEntity> member = memberRepository.findByNickname(nickName);
         if (member.isEmpty()) {
             throw new IllegalArgumentException("Invalid user nickname");
         }
 
-        //이슈 조회
-        Optional<IssueEntity> issue = issueRepository.findById(issueId);
+        IssueEntity issue = issueRepository.findById(issueEntity);
         member.orElseThrow(() -> new IllegalArgumentException("Issue not found with id: " + issueId));
 
-        //CommentEntity commentEntity = (CommentEntity) request.toEntity(issue);
-        //commentEntity.setCreaterId(member.get());
+        CommentEntity commentEntity = (CommentEntity) request.toEntity(issue);
+        commentEntity.setCreaterId(member.get());
+
+
         //commentEntity.setIssue(issue);
-
-
-        CommentEntity commentEntity = CommentEntity.builder().build();
         CommentEntity savedComment = (CommentEntity) commentRepository.save(commentEntity);
-
-        System.out.println("Saved Comment: " + savedComment);
 
 
         return new CommentResponse(savedComment);
     }
+
+    /*public CommentResponse save(CommentEntity comment) {
+        CommentEntity savedComment = (CommentEntity) commentRepository.save(comment);
+        return new CommentResponse(savedComment);
+    }*/
+
+
 
 
 

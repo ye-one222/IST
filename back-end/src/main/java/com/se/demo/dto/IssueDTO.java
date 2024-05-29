@@ -34,6 +34,7 @@ public class IssueDTO {
         state = "new";
     }
 
+
 /*
     public IssueDTO(IssueEntity issue) {
         this.id = issue.getId();

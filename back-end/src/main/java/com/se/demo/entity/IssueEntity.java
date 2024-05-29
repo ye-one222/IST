@@ -1,13 +1,10 @@
 package com.se.demo.entity;
 
-import com.se.demo.dto.IssueDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -17,34 +14,35 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @DynamicInsert
+@Setter
 
 public class IssueEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public int id;
+    private int id;
     @Column(nullable = false)
     @ColumnDefault("new")
-    public String state;
+    private String state;
     @Column(name = "pl_id")
-    public int plId;
+    private int plId;
 
     @Column(name = "title", nullable = false)
-    public String title;
+    private String title;
 
     @Column(name = "description")
-    public String description;
+    private String description;
 
     @Column(name = "reporter_id")
-    public int reporterId;
+    private int reporterId;
 
     @Column(name = "fixer_id")
-    public int fixerId;
+    private int fixerId;
 
     @Column(name = "assignee")
-    public int assigneeId;
+    private int assigneeId;
 
     @Column(name = "priority")
-    public String priority;
+    private String priority;
 
 
     @OneToMany(mappedBy = "issue", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
@@ -52,6 +50,7 @@ public class IssueEntity extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "project_id")
-    public ProjectEntity project;
+    private ProjectEntity project;
+
 
 }

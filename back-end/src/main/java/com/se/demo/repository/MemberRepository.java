@@ -10,8 +10,8 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
 
-    static Optional<MemberEntity> findByNickname(String nickname) {
+    /*static Optional<MemberEntity> findByNickname(String nickname) {
         return null;
-    }
-
+    }*/
+    Optional<MemberEntity> findByNickname(String nickname);
 }
