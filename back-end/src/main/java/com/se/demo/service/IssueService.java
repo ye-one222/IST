@@ -2,7 +2,9 @@ package com.se.demo.service;
 import com.se.demo.dto.ChangeIssueStateRequest;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.entity.IssueEntity;
+import com.se.demo.entity.MemberEntity;
 import com.se.demo.repository.IssueRepository;
+import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
@@ -10,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -22,6 +25,7 @@ import java.util.stream.Collectors;
 public class IssueService {
     public final IssueRepository issueRepository;
     public final ProjectRepository projectRepository;
+    private final MemberRepository memberRepository;
 
     public IssueEntity createIssue(IssueDTO issueDTO){
         //System.out.println("PROJECTID:"+issueDTO.getProject_id());
@@ -74,7 +78,10 @@ public class IssueService {
         issueDTO.setReporter_id(issueEntity.getReporterId());
         issueDTO.setState(issueEntity.getState());
 
-        issueDTO.setProject_id(issueEntity.getProject().getId());
+        //issueDTO.setProject_id(issueEntity.getProject().getId());
+        if (issueEntity.getProject() != null) {
+            issueDTO.setProject_id(issueEntity.getProject().getId());
+        }
 
         return issueDTO;
     }
@@ -96,5 +103,32 @@ public class IssueService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID")));;
 
         return issueEntity;
+    }
+
+    public List<IssueDTO> search(String keyword) {
+        //title에 keyword가 포함된 issueEntity List 반환
+        List<IssueEntity> issueEntityList = new ArrayList<>(issueRepository.findByTitleContaining(keyword));
+
+        //reporter nickname과 keyword가 같은 issueEntity List 반환
+        MemberEntity reporterEntity = memberRepository.findByNickname(keyword)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member Nickname"));
+        List<IssueEntity> reporterIssues = issueRepository.findByReporterId(reporterEntity.getUser_id());
+        issueEntityList.addAll(reporterIssues);
+
+        //assignee nickname과 keyword가 같은 issueEntity List 반환
+        MemberEntity assigneeEntity = memberRepository.findByNickname(keyword)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member Nickname"));
+        List<IssueEntity> assigneeIssues = issueRepository.findByAssigneeId(assigneeEntity.getUser_id());
+        issueEntityList.addAll(assigneeIssues);
+
+
+        //중복 제거
+        issueEntityList = issueEntityList.stream()
+                .distinct()
+                .collect(Collectors.toList());
+
+        return issueEntityList.stream()
+                .map(IssueService::toIssueDTO)
+                .collect(Collectors.toList());
     }
 }

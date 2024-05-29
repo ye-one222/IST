@@ -89,6 +89,18 @@ public class IssueController {
         }
     }
 
+    @GetMapping("/search")
+    public List<IssueDTO> search(@RequestParam String keyword) {
+        return issueService.search(keyword);
+    }
+    /* 이건 JSON으로 요청받는 버전
+    @PostMapping("/search")
+    public List<IssueDTO> search(@RequestBody Map<String, String> body) {
+        String keyword = body.get("keyword");
+        // keyword를 사용하여 검색 작업 수행
+        return yourSearchService.search(keyword);
+    }*/
+
     @PatchMapping("/{issue_id}/toResolved/{user_id}")
     public ResponseEntity<?> changeIssueToResolved(@PathVariable Integer issue_id, @PathVariable Integer user_id) {
         IssueDTO issueDTO = issueService.findById(issue_id);

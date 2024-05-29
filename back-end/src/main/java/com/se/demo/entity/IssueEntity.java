@@ -42,7 +42,7 @@ public class IssueEntity extends BaseEntity {
     private int fixerId;
 
     @Column(name = "assignee_id")
-    private int assigneeId;
+    private Integer assigneeId;
 
     @Column(name = "priority")
     private String priority;
