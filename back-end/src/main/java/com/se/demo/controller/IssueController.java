@@ -101,4 +101,69 @@ public class IssueController {
         return yourSearchService.search(keyword);
     }*/
 
+    @PatchMapping("/{issue_id}/toResolved/{user_id}")
+    public ResponseEntity<?> changeIssueToResolved(@PathVariable Integer issue_id, @PathVariable Integer user_id) {
+        IssueDTO issueDTO = issueService.findById(issue_id);
+        if (issueDTO == null) {
+            return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
+        }
+
+        if (!issueDTO.getState().equals("fixed") || issueDTO.getReporter_id() != user_id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이슈가 fixed가 아니거나 너 reporter 아니잖아 resolved 못해");
+        }
+
+        issueDTO.setState("resolved");
+        //issueDTO.setR(issueDTO.getAssignee_id());
+
+        IssueDTO updatedIssue = issueService.updateIssue(issueDTO);
+        if (updatedIssue != null) {
+            return ResponseEntity.ok(updatedIssue); // 성공적으로 업데이트된 이슈를 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
+        }
+    }
+
+    @PatchMapping("/{issue_id}/toClosed/{user_id}")
+    public ResponseEntity<?> changeIssueToClosed(@PathVariable Integer issue_id, @PathVariable Integer user_id) {
+        IssueDTO issueDTO = issueService.findById(issue_id);
+        if (issueDTO == null) {
+            return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
+        }
+
+        if (!issueDTO.getState().equals("resolved") || issueDTO.getPl_id() != user_id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이슈가 resolved 아니거나 너 pl 아니잖아 closed 못해");
+        }
+
+        issueDTO.setState("closed");
+        //issueDTO.setR(issueDTO.getAssignee_id());
+
+        IssueDTO updatedIssue = issueService.updateIssue(issueDTO);
+        if (updatedIssue != null) {
+            return ResponseEntity.ok(updatedIssue); // 성공적으로 업데이트된 이슈를 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
+        }
+    }
+
+    @PatchMapping("/{issue_id}/toReopened/{user_id}")
+    public ResponseEntity<?> changeIssueToReopened(@PathVariable Integer issue_id, @PathVariable Integer user_id) {
+        IssueDTO issueDTO = issueService.findById(issue_id);
+        if (issueDTO == null) {
+            return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
+        }
+
+        if (!issueDTO.getState().equals("closed") || issueDTO.getPl_id() != user_id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이슈가 closed 아니거나 너 pl 아니잖아 reopened 못해");
+        }
+
+        issueDTO.setState("reopened");
+        //issueDTO.setR(issueDTO.getAssignee_id());
+
+        IssueDTO updatedIssue = issueService.updateIssue(issueDTO);
+        if (updatedIssue != null) {
+            return ResponseEntity.ok(updatedIssue); // 성공적으로 업데이트된 이슈를 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
+        }
+    }
 }
