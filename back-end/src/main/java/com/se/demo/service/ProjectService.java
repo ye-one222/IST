@@ -6,6 +6,7 @@ import com.se.demo.dto.ProjectDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
+import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
+    private final IssueRepository issueRepository;
 
     //@Transactional
     public ProjectEntity save(ProjectDTO projectDTO) {
@@ -46,6 +48,14 @@ public class ProjectService {
         MemberEntity memberEntity = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
         return toProjectDTOList(memberEntity.getProjects());
+    }
+
+    public List<IssueDTO> findByProjectId(int projectId) {
+        List<IssueEntity> issueEntityList = issueRepository.findByProjectId(projectId);
+        List<IssueDTO> issueDTOList = issueEntityList.stream()
+                .map(IssueService::toIssueDTO)
+                .collect(Collectors.toList());
+        return issueDTOList;
     }
 
     private MemberDTO toMemberDTO(MemberEntity memberEntity) {
