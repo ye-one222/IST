@@ -38,7 +38,7 @@ public class MemberController {
         return memberService.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
     }*/
     @PostMapping("/signup")
-    public ResponseEntity<Map<String, Integer>> signup(MemberDTO memberDTO) {
+    public ResponseEntity<Map<String, Integer>> signup(@RequestBody MemberDTO memberDTO) {
         int userId = memberService.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
         //JSON 형식으로 반환하려고
         Map<String, Integer> response = new HashMap<>();
@@ -134,7 +134,7 @@ public class MemberController {
     }*/
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@ModelAttribute MemberDTO memberDTO, BindingResult bindingResult, HttpServletRequest httpServletRequest, Model model) {
+    public ResponseEntity<?> login(@RequestBody MemberDTO memberDTO, BindingResult bindingResult, HttpServletRequest httpServletRequest, Model model) {
         model.addAttribute("loginType", "session-login");
         model.addAttribute("pageName", "세션 로그인");
 
