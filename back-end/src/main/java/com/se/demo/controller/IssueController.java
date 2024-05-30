@@ -25,7 +25,7 @@ public class IssueController {
     private final IssueService issueService;
 
     //create
-    @PostMapping("/create")
+    /*@PostMapping("/create")
     public IssueDTO createIssue(@ModelAttribute IssueDTO issueDTO) {
         //받아온 issue 정보를 디비에 저장해줘야지
         //서비스의 매소드로 넘겨주기
@@ -33,7 +33,7 @@ public class IssueController {
 
 
         return IssueService.toIssueDTO(issueEntity);
-    }
+    }*/
 
     @GetMapping("/{id}")
     public IssueDTO findById(@PathVariable Integer id) {

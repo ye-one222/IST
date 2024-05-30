@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,12 +27,11 @@ public class IssueDTO {
     private String state;
     private int pl_id;
 
-    private List<CommentDTO> comments;
+    private List<CommentDTO> comments = new ArrayList<>();
     private int project_id;
 
    public IssueDTO(){
         state = "new";
-    }
-
+   }
 
 }
