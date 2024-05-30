@@ -8,5 +8,6 @@ import lombok.Setter;
 
 public class ChangeIssueStateRequest {
     private Integer assignee_id;
-    private String state;
+    private String oldState;
+    private String newState;
 }

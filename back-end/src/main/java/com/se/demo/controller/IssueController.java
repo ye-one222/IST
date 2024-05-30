@@ -25,7 +25,7 @@ public class IssueController {
     private final IssueService issueService;
 
     //create
-    @PostMapping("/create")
+    /*@PostMapping("/create")
     public IssueDTO createIssue(@ModelAttribute IssueDTO issueDTO) {
         //받아온 issue 정보를 디비에 저장해줘야지
         //서비스의 매소드로 넘겨주기
@@ -33,7 +33,7 @@ public class IssueController {
 
 
         return IssueService.toIssueDTO(issueEntity);
-    }
+    }*/
 
     @GetMapping("/{id}")
     public IssueDTO findById(@PathVariable Integer id) {
@@ -45,8 +45,38 @@ public class IssueController {
         return issueService.findMyIssues(user_id);
     }
 
+    @PatchMapping("/{issue_id}/update/{user_id}")
+    public ResponseEntity<?> updateIssueState(@PathVariable Integer issue_id, @PathVariable Integer user_id,@RequestBody ChangeIssueStateRequest request) {
+        IssueDTO issueDTO = issueService.findById(issue_id);
+        if (issueDTO == null) {
+            return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
+        }
+
+        if (!issueDTO.getState().equals(request.getOldState()) || issueDTO.getPl_id() != user_id) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이슈상태가 올바른 단계가 아니거나 너 권한 없음");
+        }
+
+        issueDTO.setState(request.getNewState());
+        if(request.getNewState().equals("assigned")){   //assigned이면
+            if(request.getAssignee_id() == null){
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("assigned할거면 담당자를 입력하세여;;");
+            }
+            issueDTO.setAssignee_id(request.getAssignee_id());
+        }
+        if(request.getNewState().equals("fixed")){  //fixed이면
+            issueDTO.setFixer_id(issueDTO.getAssignee_id());
+        }
+
+        IssueDTO updatedIssue = issueService.updateIssue(issueDTO);
+        if (updatedIssue != null) {
+            return ResponseEntity.ok(updatedIssue); // 성공적으로 업데이트된 이슈를 반환
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
+        }
+    }
+/*
     @PatchMapping("/{issue_id}/toAssigned/{user_id}")
-    public ResponseEntity<?> changeIssueToAssigned(@PathVariable Integer issue_id, @PathVariable Integer user_id,  ChangeIssueStateRequest request) {
+    public ResponseEntity<?> changeIssueToAssigned(@PathVariable Integer issue_id, @PathVariable Integer user_id,@RequestBody ChangeIssueStateRequest request) {
         IssueDTO issueDTO = issueService.findById(issue_id);
         if (issueDTO == null) {
             return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
@@ -87,7 +117,7 @@ public class IssueController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
         }
-    }
+    }*/
 
     @GetMapping("/search")
     public List<IssueDTO> search(@RequestParam String keyword) {
@@ -100,7 +130,7 @@ public class IssueController {
         // keyword를 사용하여 검색 작업 수행
         return yourSearchService.search(keyword);
     }*/
-
+/*
     @PatchMapping("/{issue_id}/toResolved/{user_id}")
     public ResponseEntity<?> changeIssueToResolved(@PathVariable Integer issue_id, @PathVariable Integer user_id) {
         IssueDTO issueDTO = issueService.findById(issue_id);
@@ -165,5 +195,5 @@ public class IssueController {
         } else {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
         }
-    }
+    }*/
 }

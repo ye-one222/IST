@@ -10,6 +10,8 @@ import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,8 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final MemberRepository memberRepository;
     private final IssueRepository issueRepository;
+
+    private final IssueService issueService;
 
     //@Transactional
     public ProjectEntity save(ProjectDTO projectDTO) {
@@ -40,7 +44,8 @@ public class ProjectService {
     public ProjectDTO findById(int project_id) {
         ProjectEntity projectEntity = projectRepository.findById(project_id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-        return toDTO(projectEntity);
+        //return toDTO(projectEntity);
+        return toProjectDTO(projectEntity);
     }
 
     @Transactional
@@ -53,7 +58,7 @@ public class ProjectService {
     public List<IssueDTO> findByProjectId(int projectId) {
         List<IssueEntity> issueEntityList = issueRepository.findByProjectId(projectId);
         List<IssueDTO> issueDTOList = issueEntityList.stream()
-                .map(IssueService::toIssueDTO)
+                .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
         return issueDTOList;
     }
@@ -67,8 +72,8 @@ public class ProjectService {
         return memberDTO;
     }
 
-    //밑에 있는 toProjectDTO랑 거의 똑같은데 이건 issue set하는게 없음. 근데 아직 머가 문제인지 모르겠음
-    public ProjectDTO toDTO(ProjectEntity projectEntity) {
+    //없어도 될듯
+    /*public ProjectDTO toDTO(ProjectEntity projectEntity) {
         ProjectDTO projectDTO = new ProjectDTO();
         projectDTO.setId(projectEntity.getId());
         projectDTO.setTitle(projectEntity.getTitle());
@@ -80,23 +85,26 @@ public class ProjectService {
                         .collect(Collectors.toList())
         );
         return projectDTO;
-    }
-
-    private IssueDTO toIssueDTO(IssueEntity issueEntity) {
-        return new IssueDTO(
+    }*/
+/*
+    public IssueDTO toIssueDTO(IssueEntity issueEntity) {
+        /*return new IssueDTO(
                 //issueEntity.getId()
                 //나중에 issueEntity 필드 생기면 다 추가
                 //issueEntity.getIssue_title(),
                 //issueEntity.getIssue_description()
-        );
-    }
 
-    private ProjectDTO toProjectDTO(ProjectEntity projectEntity) {
+        );
+        return IssueDTO.toIssueDTO(issueEntity);
+    }*/
+
+    @Transactional
+    public ProjectDTO toProjectDTO(ProjectEntity projectEntity) {
         List<IssueEntity> issueEntities = projectEntity.getIssues();
         List<IssueDTO> issueDTOs = new ArrayList<>();
         if(issueEntities!=null){
             for(IssueEntity issueEntity : issueEntities) {
-                issueDTOs.add(toIssueDTO(issueEntity));
+                issueDTOs.add(IssueDTO.toIssueDTO(issueEntity));
             }
         }
 
@@ -125,5 +133,18 @@ public class ProjectService {
             projectDTOs.add(toProjectDTO(projectEntity1));
         }
         return projectDTOs;
+    }
+
+    @Transactional
+    public IssueEntity createIssue(IssueDTO issueDTO) {
+        //해당 프로젝트DTO의 issueList에 넣어주고
+
+        ProjectEntity projectEntity = projectRepository.findById(issueDTO.getProject_id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+        ProjectDTO projectDTO = toProjectDTO(projectEntity);
+        projectDTO.getIssues().add(issueDTO);
+        //이슈 진짜 생성
+        return issueService.createIssue(issueDTO);
+
     }
 }

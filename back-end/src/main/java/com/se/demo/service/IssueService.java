@@ -8,6 +8,7 @@ import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,7 @@ public class IssueService {
 
     public IssueEntity createIssue(IssueDTO issueDTO){
         //System.out.println("PROJECTID:"+issueDTO.getProject_id());
-        IssueEntity issueEntity = toIssueEntity(issueDTO);
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
         issueRepository.save(issueEntity);
         return issueEntity;
     }
@@ -38,7 +39,7 @@ public class IssueService {
         Optional<IssueEntity> optionalIssueEntity = issueRepository.findById(id);
         if(optionalIssueEntity.isPresent()){
             IssueEntity issueEntity = optionalIssueEntity.get();
-            return IssueService.toIssueDTO(issueEntity);
+            return IssueDTO.toIssueDTO(issueEntity);
         }else {
             return null;
         }
@@ -50,7 +51,7 @@ public class IssueService {
             List<IssueEntity> issueEntities = optionalIssueEntities.get();
             //map으로 엔티티리스트를 DTO리스트로 변경
             List<IssueDTO> issueDTOs = issueEntities.stream()
-                    .map(IssueService::toIssueDTO)
+                    .map(IssueDTO::toIssueDTO)
                     .collect(Collectors.toList());
             return issueDTOs;
         }else{
@@ -59,50 +60,9 @@ public class IssueService {
     }
 
     public IssueDTO updateIssue(IssueDTO issueDTO){
-        IssueEntity issueEntity = toIssueEntity(issueDTO);
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
         issueRepository.save(issueEntity);
-        return IssueService.toIssueDTO(issueEntity);
-    }
-
-
-    public static IssueDTO toIssueDTO(IssueEntity issueEntity){
-        IssueDTO issueDTO = new IssueDTO();
-        issueDTO.setId(issueEntity.getId());
-        issueDTO.setTitle((issueEntity.getTitle()));
-        issueDTO.setDate(issueEntity.getDate());
-        issueDTO.setDescription(issueEntity.getDescription());
-        issueDTO.setPriority(issueEntity.getPriority());
-        issueDTO.setAssignee_id(issueEntity.getAssigneeId());
-        issueDTO.setFixer_id(issueEntity.getFixerId());
-        issueDTO.setPl_id(issueEntity.getPlId());
-        issueDTO.setReporter_id(issueEntity.getReporterId());
-        issueDTO.setState(issueEntity.getState());
-
-        //issueDTO.setProject_id(issueEntity.getProject().getId());
-        if (issueEntity.getProject() != null) {
-            issueDTO.setProject_id(issueEntity.getProject().getId());
-        }
-
-        return issueDTO;
-    }
-
-
-    public IssueEntity toIssueEntity(IssueDTO issueDTO) { //static 빼도 되나여
-        IssueEntity issueEntity = new IssueEntity();
-        issueEntity.setId(issueDTO.getId());
-        issueEntity.setTitle(issueDTO.getTitle());
-        issueEntity.setDescription(issueDTO.getDescription());
-        issueEntity.setReporterId(issueDTO.getReporter_id());
-        issueEntity.setFixerId(issueDTO.getFixer_id());
-        issueEntity.setAssigneeId(issueDTO.getAssignee_id());
-        issueEntity.setPriority(issueDTO.getPriority());
-        issueEntity.setState(issueDTO.getState());
-        issueEntity.setPlId(issueDTO.getPl_id());
-
-        issueEntity.setProject(projectRepository.findById(issueDTO.getProject_id())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID")));;
-
-        return issueEntity;
+        return IssueDTO.toIssueDTO(issueEntity);
     }
 
     public List<IssueDTO> search(String keyword) {
@@ -128,7 +88,7 @@ public class IssueService {
                 .collect(Collectors.toList());
 
         return issueEntityList.stream()
-                .map(IssueService::toIssueDTO)
+                .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
     }
 }
