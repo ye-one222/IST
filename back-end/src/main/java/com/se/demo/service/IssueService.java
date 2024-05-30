@@ -8,6 +8,7 @@ import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;

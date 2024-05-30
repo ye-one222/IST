@@ -34,6 +34,8 @@ public class CommentService {
 
         IssueEntity issueEntity = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid issue ID"));
+        IssueDTO issueDTO = IssueService.toIssueDTO(issueEntity);
+        issueDTO.getComments().add(request);
 
         request.setCreated_date(LocalDateTime.now());
 
