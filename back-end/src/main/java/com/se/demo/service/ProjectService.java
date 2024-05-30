@@ -10,6 +10,8 @@ import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +58,7 @@ public class ProjectService {
     public List<IssueDTO> findByProjectId(int projectId) {
         List<IssueEntity> issueEntityList = issueRepository.findByProjectId(projectId);
         List<IssueDTO> issueDTOList = issueEntityList.stream()
-                .map(IssueService::toIssueDTO)
+                .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
         return issueDTOList;
     }
@@ -84,7 +86,7 @@ public class ProjectService {
         );
         return projectDTO;
     }*/
-
+/*
     public IssueDTO toIssueDTO(IssueEntity issueEntity) {
         /*return new IssueDTO(
                 //issueEntity.getId()
@@ -92,9 +94,9 @@ public class ProjectService {
                 //issueEntity.getIssue_title(),
                 //issueEntity.getIssue_description()
 
-        );*/
-        return IssueService.toIssueDTO(issueEntity);
-    }
+        );
+        return IssueDTO.toIssueDTO(issueEntity);
+    }*/
 
     @Transactional
     public ProjectDTO toProjectDTO(ProjectEntity projectEntity) {
@@ -102,7 +104,7 @@ public class ProjectService {
         List<IssueDTO> issueDTOs = new ArrayList<>();
         if(issueEntities!=null){
             for(IssueEntity issueEntity : issueEntities) {
-                issueDTOs.add(toIssueDTO(issueEntity));
+                issueDTOs.add(IssueDTO.toIssueDTO(issueEntity));
             }
         }
 
@@ -136,11 +138,13 @@ public class ProjectService {
     @Transactional
     public IssueEntity createIssue(IssueDTO issueDTO) {
         //해당 프로젝트DTO의 issueList에 넣어주고
+
         ProjectEntity projectEntity = projectRepository.findById(issueDTO.getProject_id())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
         ProjectDTO projectDTO = toProjectDTO(projectEntity);
         projectDTO.getIssues().add(issueDTO);
         //이슈 진짜 생성
         return issueService.createIssue(issueDTO);
+
     }
 }

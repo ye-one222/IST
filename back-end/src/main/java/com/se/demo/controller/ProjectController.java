@@ -18,7 +18,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @PostMapping("/create")
-    public ProjectDTO createProject(@ModelAttribute ProjectDTO projectDTO){ //@ModelAttribute 사용했으므로 form으로만 가능, JSON으로 받으려면 @RequestBody로 바꿔야함
+    public ProjectDTO createProject(@RequestBody ProjectDTO projectDTO){ //@ModelAttribute 사용했으므로 form으로만 가능, JSON으로 받으려면 @RequestBody로 바꿔야함
         //System.out.println("projectDTO = " + projectDTO);
         ProjectEntity savedEntity = projectService.save(projectDTO);
         return projectService.toProjectDTO(savedEntity);
@@ -40,12 +40,12 @@ public class ProjectController {
     }
 
     @PostMapping("/issue/create")
-    public IssueDTO createIssue(@ModelAttribute IssueDTO issueDTO) {
+    public IssueDTO createIssue(@RequestBody IssueDTO issueDTO) {
         //받아온 issue 정보를 디비에 저장해줘야지
         //서비스의 매소드로 넘겨주기
         //IssueEntity issueEntity = issueService.createIssue(issueDTO);
         //return IssueService.toIssueDTO(issueEntity);
         IssueEntity issueEntity = projectService.createIssue(issueDTO);
-        return IssueService.toIssueDTO(issueEntity);
+        return IssueDTO.toIssueDTO(issueEntity);
     }
 }
