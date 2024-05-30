@@ -74,7 +74,15 @@ public class MemberService {
     }
 
     public boolean checkId(String id) {
-        return memberRepository.existsById(Integer.parseInt(id));
+        //return memberRepository.existsById(Integer.parseInt(id));
+        try {
+            int parsedId = Integer.parseInt(id);
+            return memberRepository.existsById(parsedId);
+        } catch (NumberFormatException e) {
+            // id가 정수로 변환할 수 없는 경우 false를 반환
+            return false;
+        }
     }
+
 
 }
