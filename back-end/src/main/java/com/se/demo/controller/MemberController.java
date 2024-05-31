@@ -39,7 +39,7 @@ public class MemberController {
     }*/
     @PostMapping("/signup")
     public ResponseEntity<Map<String, Integer>> signup(@RequestBody MemberDTO memberDTO) {
-        int userId = memberService.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
+        int userId = MemberDTO.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
         //JSON 형식으로 반환하려고
         Map<String, Integer> response = new HashMap<>();
         response.put("id", userId);
