@@ -39,6 +39,8 @@ public class ProjectConsole {
         ConfigurableApplicationContext context = SpringApplication.run(ProjectConsole.class, args);
 
         // MemberController 컨트롤러의 빈을 가져옵니다.
+        MemberController memberController = context.getBean(MemberController.class);
+
         ProjectController projectController = context.getBean(ProjectController.class);
 
         // ProjectDTO 객체 생성
@@ -76,12 +78,12 @@ public class ProjectConsole {
         MemberDTO member1 = new MemberDTO();
         member1.setUser_id(1);
         member1.setNickname("john");
-        member1.setPassword("password123");
+        member1.setPassword("123");
 
         MemberDTO member2 = new MemberDTO();
         member2.setUser_id(2);
         member2.setNickname("jane");
-        member2.setPassword("password456");
+        member2.setPassword("456");
 
         // 멤버 리스트에 추가
         List<MemberDTO> members = new ArrayList<>();
@@ -119,9 +121,12 @@ public class ProjectConsole {
         //나의 전체 프로젝트 조회
         ResponseEntity<ProjectDTO[]> searchProjectResponse1 = restTemplate.getForEntity(baseUrl + "/my/"+ member1.getUser_id(), ProjectDTO[].class);
         System.out.println("Get My Project Response: " + Arrays.toString(searchProjectResponse1.getBody()));
+        // 첫 번째 사용자의 프로젝트 조회 결과 출력
+
 
         ResponseEntity<ProjectDTO[]> searchProjectResponse2 = restTemplate.getForEntity(baseUrl + "/my/"+ member2.getUser_id(), ProjectDTO[].class);
         System.out.println("Get My Project Response: " + Arrays.toString(searchProjectResponse2.getBody()));
+        // 두 번째 사용자의 프로젝트 조회 결과 출력
 
     }
 }

@@ -51,8 +51,8 @@ public class MemberConsole {
         // MemberDTO 객체 생성
         MemberDTO memberDTO = new MemberDTO();
         memberDTO.setUser_id(1);
-        memberDTO.setNickname("john_doe");
-        memberDTO.setPassword("password123");
+        memberDTO.setNickname("john");
+        memberDTO.setPassword("123");
 
         //회원가입 요청 보내기
         ResponseEntity<Map<String, Integer>> signupResponse = memberController.signup(memberDTO);
