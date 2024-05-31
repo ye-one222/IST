@@ -31,7 +31,7 @@ public class ProjectService {
 
     //@Transactional
     public ProjectEntity save(ProjectDTO projectDTO) {
-        System.out.println("LEADER::"+projectDTO.getLeader_id());
+        //System.out.println("LEADER::"+projectDTO.getLeader_id());
         MemberEntity leaderEntity = memberRepository.findById(projectDTO.getLeader_id())
             .orElseThrow(() -> new IllegalArgumentException("Invalid leader ID"));
         MemberDTO leaderDTO = MemberDTO.toMemberDTO(leaderEntity);
@@ -90,6 +90,19 @@ public class ProjectService {
         projectDTO.getIssues().add(issueDTO);
         //이슈 진짜 생성
         return issueService.createIssue(issueDTO);
+    }
+
+    @Transactional
+    public ProjectDTO inviteMember(int projectId, int userId) {
+        //projectDTO 가져와서 members에 add
+        //실제 DB에도 project_members table에 추가
+        ProjectEntity projectEntity = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+        MemberEntity memberEntity = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+
+        projectEntity.getMembers().add(memberEntity);
+        return ProjectDTO.toProjectDTO(projectEntity);
     }
 
     /*private MemberDTO toMemberDTO(MemberEntity memberEntity) {

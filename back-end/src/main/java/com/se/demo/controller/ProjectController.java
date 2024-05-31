@@ -8,6 +8,7 @@ import com.se.demo.entity.ProjectEntity;
 import com.se.demo.service.IssueService;
 import com.se.demo.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,5 +49,10 @@ public class ProjectController {
         //return IssueService.toIssueDTO(issueEntity);
         IssueEntity issueEntity = projectService.createIssue(issueDTO);
         return IssueDTO.toIssueDTO(issueEntity);
+    }
+
+    @PostMapping("/{project_id}/invite/{user_id}")
+    public ProjectDTO inviteMember(@PathVariable int project_id, @PathVariable int user_id) {
+        return projectService.inviteMember(project_id, user_id);
     }
 }
