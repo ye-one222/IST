@@ -41,7 +41,7 @@ public class ProjectEntity {
     private List<MemberEntity> members = new ArrayList<>();
 
 
-    public static ProjectEntity toSaveEntity(ProjectDTO projectDTO) {
+    /*public static ProjectEntity toSaveEntity(ProjectDTO projectDTO) {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setTitle(projectDTO.getTitle());
         projectEntity.setLeader_id(projectDTO.getLeader_id());
@@ -57,6 +57,22 @@ public class ProjectEntity {
             }
         }
 
+        return projectEntity;
+    }*/
+
+    public static ProjectEntity toProjectEntity(ProjectDTO projectDTO) {
+        ProjectEntity projectEntity = new ProjectEntity();
+        projectEntity.setTitle(projectDTO.getTitle());
+        projectEntity.setLeader_id(projectDTO.getLeader_id());
+        if (projectDTO.getMembers() != null) {
+            List<MemberEntity> memberEntities = projectDTO.getMembers().stream()
+                    .map(MemberEntity::toMemberEntity)
+                    .collect(Collectors.toList());
+            projectEntity.setMembers(memberEntities);
+            for (MemberEntity member : memberEntities) {
+                member.getProjects().add(projectEntity);
+            }
+        }
         return projectEntity;
     }
 }
