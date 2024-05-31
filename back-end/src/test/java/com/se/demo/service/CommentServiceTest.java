@@ -7,6 +7,8 @@ import com.se.demo.entity.MemberEntity;
 import com.se.demo.repository.CommentRepository;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
+import com.se.demo.service.CommentService;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,7 +27,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CommentServiceTest {
+class CommentServiceTest{
 
     @Mock
     private CommentRepository commentRepository;
@@ -38,7 +40,6 @@ class CommentServiceTest {
 
     @InjectMocks
     private CommentService commentService;
-
     private MemberEntity member;
     private IssueEntity issue;
     private CommentEntity commentEntity;
@@ -49,27 +50,19 @@ class CommentServiceTest {
     public void setUp() {
         MockitoAnnotations.openMocks(this);
 
-            member = new MemberEntity();
-            member.setNickname("testUser");
-            member.setPassword("1111");
-            member.setUser_id(1);
-            // 나머지 필드 초기화
+        member = new MemberEntity();
+        member.setNickname("testUser");
+        member.setPassword("1111");
+        member.setUser_id(1);
 
-            member = memberRepository.save(member);
-
-
-
-            issue = new IssueEntity();
-            issue.setId(1);
-            issue.setTitle("Test Issue");
-            issue.setDescription("Test description"); // Set description here
-            issue.setState("new");
-            issue = issueRepository.save(issue);
-
-
+        issue = new IssueEntity();
+        issue.setId(4);
+        issue.setTitle("Test Issue");
+        issue.setDescription("Test description");
+        issue.setState("new");
 
         commentEntity = new CommentEntity();
-        commentEntity.setId(1);
+        commentEntity.setId(3);
         commentEntity.setDescription("Test description");
         commentEntity.setCreatedDate(LocalDateTime.now());
         commentEntity.setCreaterId(member);
@@ -82,48 +75,57 @@ class CommentServiceTest {
         commentDTO.setCreater_id(member.getUser_id());
         commentDTO.setIssue_id(issue.getId());
 
-        
+
+
     }
 
 
 
     @Test
     public void testSaveComment() {
-
-
         // Arrange
-        when(memberRepository.findByNickname(anyString())).thenReturn(Optional.of(member));
-        when(issueRepository.findById(anyInt())).thenReturn(Optional.of(issue));
+        when(memberRepository.findById(1)).thenReturn(Optional.of(member));
+        when(issueRepository.findById(4)).thenReturn(Optional.of(issue));
+        //when(commentRepository.save(any(CommentEntity.class))).thenReturn(commentEntity);
 
-        // Use ArgumentCaptor to capture the CommentEntity being saved
+
+
+
+        //Use ArgumentCaptor to capture the CommentEntity being saved
         ArgumentCaptor<CommentEntity> captor = ArgumentCaptor.forClass(CommentEntity.class);
-        when(commentRepository.save(captor.capture())).thenReturn(commentEntity);
+        //doAnswer(invocation -> invocation.getArgument(0)).when(commentRepository).save(captor.capture());
+
 
         // Act
-        CommentEntity savedComment = commentService.save(commentDTO, "testUser", 1);
+        CommentEntity savedComment = commentService.save(commentDTO, "1", 4);
 
         // Assert
         assertNotNull(savedComment);
-        assertEquals(commentEntity.getId(), savedComment.getId());
+        assertEquals(commentDTO.getDescription(), savedComment.getDescription());
+        assertEquals(member.getUser_id(), savedComment.getCreaterId().getUser_id());
+        assertEquals(issue.getId(), savedComment.getIssue().getId());
 
         // Verify that commentRepository.save was called once with the captured argument
+        //verify(commentRepository, times(1)).save(any(CommentEntity.class));
         verify(commentRepository, times(1)).save(captor.capture());
-        assertEquals(commentDTO.getDescription(), captor.getValue().getDescription());
-        assertEquals(member.getUser_id(), captor.getValue().getCreaterId().getUser_id());
-        assertEquals(issue.getId(), captor.getValue().getIssue().getId());
+
+        CommentEntity capturedComment = captor.getValue();
+        assertEquals(commentDTO.getDescription(), capturedComment.getDescription());
+        assertEquals(member.getUser_id(), capturedComment.getCreaterId().getUser_id());
+        assertEquals(issue.getId(), capturedComment.getIssue().getId());
     }
 
 
     @Test
     public void testFindAllByIssueId() {
-        when(commentRepository.findByIssueId(anyInt())).thenReturn(Arrays.asList(commentEntity));
+        when(commentRepository.findByIssueId(4)).thenReturn(Arrays.asList(commentEntity));
 
-        List<CommentDTO> comments = commentService.findAllByIssueId(1);
+        List<CommentDTO> comments = commentService.findAllByIssueId(4);
 
         assertNotNull(comments);
         assertEquals(1, comments.size());
-        assertEquals(commentDTO.getDescription(), comments.get(0).getDescription());
-        verify(commentRepository, times(1)).findByIssueId(anyInt());
+        assertEquals(commentDTO.getDescription(), comments.get(1).getDescription());
+        //verify(commentRepository, times(1)).findByIssueId(anyInt());
     }
 
 

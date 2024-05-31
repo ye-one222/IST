@@ -51,15 +51,15 @@ class CommentDTOTest {
     public void testGettersAndSetters() {
         CommentDTO commentDTO = new CommentDTO();
         commentDTO.setId(1);
-        commentDTO.setCreater_id(2);
-        commentDTO.setDescription("Sample description");
+        commentDTO.setCreater_id(1);
+        commentDTO.setDescription("test description");
         commentDTO.setCreated_date(LocalDateTime.of(2023, 5, 30, 10, 0));
-        commentDTO.setIssue_id(3);
+        commentDTO.setIssue_id(1);
 
         Assertions.assertEquals(1, commentDTO.getId());
-        Assertions.assertEquals(2, commentDTO.getCreater_id());
-        Assertions.assertEquals("Sample description", commentDTO.getDescription());
+        Assertions.assertEquals(1, commentDTO.getCreater_id());
+        Assertions.assertEquals("test description", commentDTO.getDescription());
         Assertions.assertEquals(LocalDateTime.of(2023, 5, 30, 10, 0), commentDTO.getCreated_date());
-        Assertions.assertEquals(3, commentDTO.getIssue_id());
+        Assertions.assertEquals(1, commentDTO.getIssue_id());
     }
 }
