@@ -3,6 +3,7 @@ package com.se.demo.service;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.MemberDTO;
 import com.se.demo.dto.ProjectDTO;
+import com.se.demo.dto.ResponseProjectDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
@@ -30,7 +31,7 @@ public class ProjectService {
 
     //@Transactional
     public ProjectEntity save(ProjectDTO projectDTO) {
-        System.out.println("LEADER::"+projectDTO.getLeader_id());
+        //System.out.println("LEADER::"+projectDTO.getLeader_id());
         MemberEntity leaderEntity = memberRepository.findById(projectDTO.getLeader_id())
             .orElseThrow(() -> new IllegalArgumentException("Invalid leader ID"));
         MemberDTO leaderDTO = MemberDTO.toMemberDTO(leaderEntity);
@@ -41,18 +42,34 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectDTO findById(int project_id) {
+    public ResponseProjectDTO findById(int project_id) {
         ProjectEntity projectEntity = projectRepository.findById(project_id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
         //return toDTO(projectEntity);
-        return ProjectDTO.toProjectDTO(projectEntity);
+        ProjectDTO projectDTO = ProjectDTO.toProjectDTO(projectEntity);
+
+        MemberEntity leaderEntity = memberRepository.findById(projectDTO.getLeader_id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leader nickname"));
+
+        return new ResponseProjectDTO(projectDTO, leaderEntity.getNickname());
     }
 
     @Transactional
-    public List<ProjectDTO> findByUserId(int userId) {
+    public List<ResponseProjectDTO> findByUserId(int userId) {
         MemberEntity memberEntity = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
-        return ProjectDTO.toProjectDTOList(memberEntity.getProjects());
+
+        List <ProjectDTO> projectDTOList = ProjectDTO.toProjectDTOList(memberEntity.getProjects());
+        List <ResponseProjectDTO> responseProjectDTOList = new ArrayList<>();
+
+        for(ProjectDTO projectDTO : projectDTOList){
+            MemberEntity leaderEntity = memberRepository.findById(projectDTO.getLeader_id())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid leader nickname"));
+            ResponseProjectDTO responseProjectDTO = new ResponseProjectDTO(projectDTO, leaderEntity.getNickname());
+            responseProjectDTOList.add(responseProjectDTO);
+        }
+
+        return responseProjectDTOList;
     }
 
     public List<IssueDTO> findByProjectId(int projectId) {
@@ -73,6 +90,19 @@ public class ProjectService {
         projectDTO.getIssues().add(issueDTO);
         //이슈 진짜 생성
         return issueService.createIssue(issueDTO);
+    }
+
+    @Transactional
+    public ProjectDTO inviteMember(int projectId, int userId) {
+        //projectDTO 가져와서 members에 add
+        //실제 DB에도 project_members table에 추가
+        ProjectEntity projectEntity = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+        MemberEntity memberEntity = memberRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
+
+        projectEntity.getMembers().add(memberEntity);
+        return ProjectDTO.toProjectDTO(projectEntity);
     }
 
     /*private MemberDTO toMemberDTO(MemberEntity memberEntity) {

@@ -73,8 +73,18 @@ public class MemberService {
         return optionalMemberEntity.get();
     }
 
-    public boolean checkId(String id) {
-        return memberRepository.existsById(Integer.parseInt(id));
+    public boolean checkId(String nickname) {
+        try {
+            System.out.println(nickname);
+            if(memberRepository.existsByNickname(nickname)){
+                return false;
+            }
+            else{
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
     //해당 nickname을 가진 user의 id를 반환
