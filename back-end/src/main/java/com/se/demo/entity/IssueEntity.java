@@ -62,6 +62,7 @@ public class IssueEntity extends BaseEntity {
         issueEntity.setId(issueDTO.getId());
         issueEntity.setTitle(issueDTO.getTitle());
         issueEntity.setDescription(issueDTO.getDescription());
+
         issueEntity.setReporterId(issueDTO.getReporter_id());
         issueEntity.setFixerId(issueDTO.getFixer_id());
         issueEntity.setAssigneeId(issueDTO.getAssignee_id());

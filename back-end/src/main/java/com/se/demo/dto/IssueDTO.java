@@ -26,7 +26,6 @@ public class IssueDTO {
     private String priority;
     private String state;
     private int pl_id;
-
     private List<CommentDTO> comments = new ArrayList<>();
     private int project_id;
 
