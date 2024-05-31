@@ -2,6 +2,7 @@ package com.se.demo.controller;
 
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ProjectDTO;
+import com.se.demo.dto.ResponseProjectDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.ProjectEntity;
 import com.se.demo.service.IssueService;
@@ -25,12 +26,12 @@ public class ProjectController {
     }
 
     @GetMapping("/{project_id}")
-    public ProjectDTO findByProjectId(@PathVariable int project_id) {
+    public ResponseProjectDTO findByProjectId(@PathVariable int project_id) {
         return projectService.findById(project_id);
     }
 
     @GetMapping("/my/{user_id}")
-    public List<ProjectDTO> findByUserId(@PathVariable int user_id) {
+    public List<ResponseProjectDTO> findByUserId(@PathVariable int user_id) {
         return projectService.findByUserId(user_id);
     }
 
