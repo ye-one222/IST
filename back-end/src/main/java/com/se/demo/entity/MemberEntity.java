@@ -36,12 +36,12 @@ public class MemberEntity {
     private List<ProjectEntity> projects = new ArrayList<>();
 
     //Dto를 Entity로
-    public static MemberEntity toMemberEntityBW(MemberDTO memberDTOOfBW) {
-        MemberEntity memberEntityOfBW = new MemberEntity();
-        memberEntityOfBW.setUser_id(memberDTOOfBW.getUser_id());
-        memberEntityOfBW.setNickname(memberDTOOfBW.getNickname());
-        memberEntityOfBW.setPassword(memberDTOOfBW.getPassword());
-        return memberEntityOfBW;
+    public static MemberEntity toMemberEntity(MemberDTO memberDTOOfBW) {
+        MemberEntity memberEntityOf = new MemberEntity();
+        memberEntityOf.setUser_id(memberDTOOfBW.getUser_id());
+        memberEntityOf.setNickname(memberDTOOfBW.getNickname());
+        memberEntityOf.setPassword(memberDTOOfBW.getPassword());
+        return memberEntityOf;
     }
 }
 

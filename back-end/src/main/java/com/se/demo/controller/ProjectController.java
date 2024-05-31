@@ -21,7 +21,7 @@ public class ProjectController {
     public ProjectDTO createProject(@RequestBody ProjectDTO projectDTO){ //@ModelAttribute 사용했으므로 form으로만 가능, JSON으로 받으려면 @RequestBody로 바꿔야함
         //System.out.println("projectDTO = " + projectDTO);
         ProjectEntity savedEntity = projectService.save(projectDTO);
-        return projectService.toProjectDTO(savedEntity);
+        return ProjectDTO.toProjectDTO(savedEntity);
     }
 
     @GetMapping("/{project_id}")
