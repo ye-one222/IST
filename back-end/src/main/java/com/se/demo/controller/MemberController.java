@@ -38,19 +38,26 @@ public class MemberController {
         return memberService.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
     }*/
     @PostMapping("/signup")
-    public ResponseEntity<Map<String, Integer>> signup(@RequestBody MemberDTO memberDTO) {
-        int userId = memberService.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
-        //JSON 형식으로 반환하려고
-        Map<String, Integer> response = new HashMap<>();
-        response.put("id", userId);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<Object> signup(@RequestBody MemberDTO memberDTO) {
+        if(memberService.checkId(memberDTO.getNickname())){
+            int userId = MemberDTO.toMemberDTO(memberService.signup(memberDTO)).getUser_id();
+            //JSON 형식으로 반환하려고
+            Map<String, Integer> response = new HashMap<>();
+            response.put("id", userId);
+            return ResponseEntity.ok(response);
+        }
+        else{
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "ID already in use");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+        }
     }
 
-    @PostMapping("/check")
+    /*@PostMapping("/check")
     public ResponseEntity<?> check(@RequestBody MemberDTO memberDTO){
         boolean isAvailable = memberService.checkId(memberDTO.getId());
         return ResponseEntity.ok(ApiUtils.success(isAvailable));
-    }
+    }*/
 
     /*@GetMapping(value = {"", "/"})
     public String home(Model model, @SessionAttribute(name="userNickname", required = false) String userNickname){
@@ -175,6 +182,13 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+<<<<<<< HEAD
 
+=======
+    @GetMapping("/{user_nickname}")
+    public int getUser(@PathVariable("user_nickname") String userNickname) {
+        return memberService.findByNickname(userNickname);
+    }
+>>>>>>> 08706729e8c16330e9c6718763f2981c98372624
 }
 

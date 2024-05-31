@@ -14,6 +14,10 @@ public interface MemberRepository extends JpaRepository<MemberEntity, Integer> {
         return null;
     }*/
     Optional<MemberEntity> findByNickname(String nickname);
+<<<<<<< HEAD
 
+=======
+    boolean existsByNickname(String nickname);
+>>>>>>> 08706729e8c16330e9c6718763f2981c98372624
 }
 
