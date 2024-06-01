@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -78,11 +79,13 @@ public class IssueService {
                         String reporterNickname = memberRepository.findById(issueEntity.getReporterId())
                                 .orElseThrow(() -> new RuntimeException("해당 리포터가 디비에 없음")).getNickname();
                         responseIssueDTO.setReporter_nickname(reporterNickname);
-
-                        String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
-                                .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
-                        responseIssueDTO.setAssignee_nickname(assigneeNickname);
-                        //responseIssueDTO.setAssignee_nickname(memberRepository.findById(issueEntity.getAssigneeId()).get().getNickname());
+                        //여기서 assignee_nickname
+                        //상태가 new인지 확인하는 로직 필요하네
+                        if(!Objects.equals(issueEntity.getState(), "new")){
+                            String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
+                                    .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
+                            responseIssueDTO.setAssignee_nickname(assigneeNickname);
+                        }
                         return responseIssueDTO;
                     })
                     .collect(Collectors.toList());
