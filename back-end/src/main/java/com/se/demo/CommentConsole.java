@@ -14,12 +14,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -45,8 +44,11 @@ public class CommentConsole {
         // RestTemplate 객체 생성
         RestTemplate restTemplate = new RestTemplate();
 
-
         Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter your nickname: ");
+        String nickName = scanner.nextLine();
+
+
         // 이슈 선택
         System.out.print("Enter the ID of the issue to comment on: ");
         int issueId = scanner.nextInt();
@@ -56,16 +58,18 @@ public class CommentConsole {
         // 코멘트 내용 입력
         System.out.print("Enter your comment: ");
         String commentText = scanner.nextLine();
-
-        // 사용자의 닉네임
-        String nickName = "testUser"; // 실제 존재하는 사용자 닉네임
+        
+        // 현재 시간 설정
+        LocalDateTime createdDate = LocalDateTime.now();
 
         // 새로운 코멘트 생성
-        /*CommentDTO newComment = new CommentDTO();
+        CommentDTO newComment = new CommentDTO();
         newComment.setDescription(commentText);
+        newComment.setCreated_date(createdDate);
         newComment.setIssue_id(issueId);
+
         // HttpHeaders 설정
-        HttpHeaders headers = new HttpHeaders();
+        /*HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
         // HttpEntity 생성
@@ -90,22 +94,27 @@ public class CommentConsole {
                     HttpMethod.GET,
                     null,
                     new ParameterizedTypeReference<List<CommentDTO>>() {}
+            );*/
+        try {
+            // 코멘트 저장 API 호출
+            ResponseEntity<CommentDTO> response = restTemplate.postForEntity(
+                    baseUrl + "/comments/create",
+                    newComment,
+                    CommentDTO.class
             );
 
-            // 댓글 목록 출력
-            List<CommentDTO> commentsForIssue = commentResponse.getBody();
-            System.out.println("Comments for Issue " + issueId + ": ");
-            for (CommentDTO comment : commentsForIssue) {
-                System.out.println(comment);
+            // 저장된 코멘트 출력
+            CommentDTO savedComment = response.getBody();
+            System.out.println("Saved Comment: " + savedComment);
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.BAD_REQUEST) {
+                System.out.println("Invalid member nickname or issue ID.");
+            } else {
+                System.err.println("Failed to save comment: " + e.getMessage());
             }
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-        } finally {
-            // Spring ApplicationContext 종료
-            context.close();
-        }*/
-
-
+            System.err.println("Failed to save comment: " + e.getMessage());
+        }
 
     }
 }
