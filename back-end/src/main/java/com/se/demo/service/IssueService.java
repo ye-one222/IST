@@ -1,6 +1,4 @@
 package com.se.demo.service;
-import com.se.demo.dto.ChangeIssueStateRequest;
-import com.se.demo.dto.IssueAnalysisDTO;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.entity.IssueEntity;
@@ -11,7 +9,6 @@ import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
@@ -144,19 +141,5 @@ public class IssueService {
         }
         return false;
     }
-
-    //통계분석
-    //모든 이슈 서치하면서 각 달마다 개수 세기
-  /*  public IssueAnalysisDTO countAnalysis(Integer user_id){
-        //repo -> get all issue Entity
-        IssueAnalysisDTO issueAnalysisDTO = new IssueAnalysisDTO();
-        //내 이슈entity 찾기
-        List<IssueEntity> issueEntityList = issueRepository.findByReporterIdOrAssigneeIdOrPlId(user_id, user_id, user_id);
-        for(IssueEntity issueEntity : issueEntityList){
-            if(issueEntity.getDate())
-        }
-        return issueAnalysisDTO;
-    }*/
-
 
 }
