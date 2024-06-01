@@ -1,9 +1,6 @@
 package com.se.demo.controller;
 
-import com.se.demo.dto.IssueDTO;
-import com.se.demo.dto.ProjectDTO;
-import com.se.demo.dto.ResponseIssueDTO;
-import com.se.demo.dto.ResponseProjectDTO;
+import com.se.demo.dto.*;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.ProjectEntity;
 import com.se.demo.service.IssueService;
@@ -56,4 +53,11 @@ public class ProjectController {
     public ProjectDTO inviteMember(@PathVariable int project_id, @PathVariable int user_id) {
         return projectService.inviteMember(project_id, user_id);
     }
+
+    //이슈 통계 분석
+    @GetMapping("/analysis/{proj_id}")
+    public List<MonthlyAnalysisDTO> searchIssuesAnalysis(@PathVariable Integer proj_id){
+        return projectService.countAnalysis(proj_id);
+    }
+
 }

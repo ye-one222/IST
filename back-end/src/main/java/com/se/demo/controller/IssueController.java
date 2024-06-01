@@ -1,6 +1,5 @@
 package com.se.demo.controller;
 
-import com.se.demo.dto.IssueAnalysisDTO;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.service.IssueService;
@@ -89,12 +88,6 @@ public class IssueController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update issue."); // 이슈 업데이트 실패
         }
     }
-    /*
-    //이슈 통계 분석
-    @GetMapping("/analysis/{user_id}")
-    public IssueAnalysisDTO searchIssuesAnalysis(@PathVariable Integer user_id){
-        return issueService.countAnalysis(user_id);
-    }*/
 
     @GetMapping("/search")
     public List<IssueDTO> search(@RequestParam String keyword) {
