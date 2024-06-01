@@ -92,6 +92,7 @@ public class IssueController {
     @GetMapping("/search")
     public List<IssueDTO> search(@RequestParam String keyword) {
         return issueService.search(keyword);
+
     }
     /* 이건 JSON으로 요청받는 버전
     @PostMapping("/search")
