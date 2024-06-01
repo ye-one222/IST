@@ -3,6 +3,8 @@ package com.se.demo;
 import com.se.demo.dto.ChangeIssueStateRequest;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
+import com.se.demo.entity.IssueEntity;
+import com.se.demo.service.IssueService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.http.HttpClient;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 @Getter
 @Setter
@@ -33,93 +36,96 @@ public class IssueConsole {
 
         Scanner scanner = new Scanner(System.in);
 
-        // RestTemplate 생성
         RestTemplate restTemplate = new RestTemplate();
+
 
         // 스프링 부트 애플리케이션 컨텍스트를 로드합니다.
         ConfigurableApplicationContext context = SpringApplication.run(IssueConsole.class, args);
+        // 이슈 생성
+        IssueService issueService = context.getBean(IssueService.class);
+        IssueDTO issueDTO = new IssueDTO();
 
 
 
         // 특정이슈 상세 조회
+        System.out.println("특정 이슈 상세 조회");
         System.out.print("Enter Issue ID: ");
         int issueId = scanner.nextInt();
         ResponseEntity<ResponseIssueDTO> findByIdResponse = restTemplate.getForEntity(baseUrl + "/" + issueId, ResponseIssueDTO.class);
         System.out.println("Find Issue by ID Response: " + findByIdResponse.getBody());
 
         // 나의 모든 이슈 조회
+        System.out.println("나의 모든 이슈 조회");
         System.out.print("Enter UserId: ");
         int userId = scanner.nextInt();
         ResponseEntity<ResponseIssueDTO[]> findMyIssuesResponse = restTemplate.getForEntity(baseUrl + "/my/" + userId, ResponseIssueDTO[].class);
         System.out.println("Find My Issues Response: " + Arrays.toString(findMyIssuesResponse.getBody()));
 
         // 이슈 상태 변경
-        /*System.out.println("Enter issue id: ");
-        int issueId1 = scanner.nextInt();
+        System.out.println("이슈상태 변경");
+        System.out.println("Enter issue title: ");
+        String title = scanner.next();
+        issueDTO.setTitle(title);
+
+        System.out.println("Enter issue description: ");
+        String description = scanner.next();
+        issueDTO.setDescription(description);
+
+        System.out.println("Enter project ID: ");
+        int projectId = scanner.nextInt();
+        issueDTO.setProject_id(projectId);
+
+        System.out.println("Enter reporter ID: ");
+        int reporterId = scanner.nextInt();
+        issueDTO.setReporter_id(reporterId);
+
+        IssueEntity createdIssueEntity = issueService.createIssue(issueDTO);
+        System.out.println("Created Issue: " + createdIssueEntity);
+
+        // 이슈 상태 변경
+        System.out.println("Enter issue ID to update state: ");
+        //int issueId = scanner.nextInt();
+
         ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();
         changeIssueStateRequest.setOldState("open");
         changeIssueStateRequest.setNewState("assigned");
-        changeIssueStateRequest.setAssignee_id(userId); // Example assignee ID
+        changeIssueStateRequest.setAssignee_id(reporterId); // Example assignee ID
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<ChangeIssueStateRequest> updateRequestEntity = new HttpEntity<>(changeIssueStateRequest, headers);
+        IssueDTO updateIssueStateResponse = issueService.updateIssue(issueDTO);
+        System.out.println("Update Issue State Response: " + updateIssueStateResponse);
 
-        ResponseEntity<ResponseIssueDTO> updateIssueStateResponse = restTemplate.exchange(baseUrl + "/" + issueId + "/update/" + userId, HttpMethod.PATCH, updateRequestEntity, ResponseIssueDTO.class);
-        System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());
-        System.out.println("Enter issue id: ");
-        int issueId1 = scanner.nextInt();*/
-
-        /*ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();
-        changeIssueStateRequest.setOldState("open");
-        changeIssueStateRequest.setNewState("assigned");
-        changeIssueStateRequest.setAssignee_id(userId); // Example assignee ID
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        String requestBody = "{\"oldState\":\"open\", \"newState\":\"assigned\", \"assignee_id\":11}";
-
-        // HTTP 요청 엔티티 생성
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
-
-        // PATCH 요청 보내기
-        ResponseEntity<ResponseIssueDTO> updateIssueStateResponse = restTemplate.exchange(baseUrl + "/" + issueId1 + "/update/" + userId, HttpMethod.PATCH, requestEntity, ResponseIssueDTO.class);
-
-        // 응답 출력
-        System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());
 
         // 이슈 검색
-        System.out.print("Enter keyword: ");
-        String keyword = scanner.next();
-        // 키워드가 비어있는지 확인
-        if (!keyword.isEmpty()) {
-            try {
-                // 검색을 위한 URL 생성
-                String searchUrl = UriComponentsBuilder.fromUriString(baseUrl)
-                        .path("/search")
-                        .queryParam("keyword", keyword)
-                        .toUriString();
+        // 키워드 입력 받기
+        System.out.print("Enter keyword to search for issues: ");
+        String keyword = scanner.nextLine();
 
-                // 이슈 검색 요청 및 응답 처리
-                ResponseEntity<IssueDTO[]> searchResponse = restTemplate.getForEntity(searchUrl, IssueDTO[].class);
-                IssueDTO[] issues = searchResponse.getBody();
+        // 이슈 검색
+        List<IssueDTO> searchResults = null;
+        try {
+            String searchUrl = baseUrl + "/issues/search?keyword=" + keyword;
+            ResponseEntity<IssueDTO[]> response = restTemplate.getForEntity(searchUrl, IssueDTO[].class);
+            searchResults = Arrays.asList(response.getBody());
+        } catch (HttpClientErrorException e) {
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                System.out.println("No issues found with the keyword: " + keyword);
+            } else {
+                System.err.println("Error searching for issues: " + e.getMessage());
+            }
+            return;
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+            return;
+        }
 
-                // 검색 결과 출력
-                if (issues != null && issues.length > 0) {
-                    System.out.println("Search Issues Response: ");
-                    for (IssueDTO issue : issues) {
-                        System.out.println(issue);
-                    }
-                } else {
-                    System.out.println("No issues found with the keyword: " + keyword);
-                }
-            } catch (HttpClientErrorException | HttpServerErrorException ex) {
-                System.err.println("Error: " + ex.getRawStatusCode() + " - " + ex.getStatusText());
-            } catch (Exception ex) {
-                System.err.println("Unexpected Error: " + ex.getMessage());
+        // 검색 결과 출력
+        if (searchResults != null && !searchResults.isEmpty()) {
+            System.out.println("Search Results:");
+            for (issueDTO = (IssueDTO) searchResults;;) {
+                System.out.println(issueDTO);
             }
         } else {
-            System.out.println("Keyword is empty. Please enter a valid keyword.");
-        }*/
+            System.out.println("No issues found with the keyword: " + keyword);
+        }
     }
 }
