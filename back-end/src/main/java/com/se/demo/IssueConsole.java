@@ -33,8 +33,8 @@ public class IssueConsole {
 
         Scanner scanner = new Scanner(System.in);
 
-        // RestTemplate 생성
         RestTemplate restTemplate = new RestTemplate();
+
 
         // 스프링 부트 애플리케이션 컨텍스트를 로드합니다.
         ConfigurableApplicationContext context = SpringApplication.run(IssueConsole.class, args);
@@ -54,8 +54,8 @@ public class IssueConsole {
         System.out.println("Find My Issues Response: " + Arrays.toString(findMyIssuesResponse.getBody()));
 
         // 이슈 상태 변경
-        System.out.println("Enter issue id: ");
-        int issueId1 = scanner.nextInt();
+        System.out.print("Enter Issue ID to update state: ");
+        int issueIdToUpdate = scanner.nextInt();
         ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();
         changeIssueStateRequest.setOldState("open");
         changeIssueStateRequest.setNewState("assigned");
@@ -65,9 +65,23 @@ public class IssueConsole {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<ChangeIssueStateRequest> updateRequestEntity = new HttpEntity<>(changeIssueStateRequest, headers);
 
-        ResponseEntity<ResponseIssueDTO> updateIssueStateResponse = restTemplate.exchange(baseUrl + "/" + issueId + "/update/" + userId, HttpMethod.PATCH, updateRequestEntity, ResponseIssueDTO.class);
-        System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());
-        System.out.println("Enter issue id: ");
+        // PATCH 요청 본문 설정
+        String requestBody = "{\"oldState\":\"open\", \"newState\":\"assigned\", \"assignee_id\":11}";
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
+        // PATCH 요청 보내기
+        ResponseEntity<String> responseEntity = restTemplate.exchange(baseUrl, HttpMethod.PATCH, requestEntity, String.class);
+
+        // 응답 확인
+        HttpStatus statusCode = (HttpStatus) responseEntity.getStatusCode();
+        if (statusCode == HttpStatus.OK) {
+            System.out.println("PATCH request successful.");
+        } else {
+            System.out.println("PATCH request failed. Status code: " + statusCode);
+        }
+
+
+        // ResponseEntity<ResponseIssueDTO> updateIssueStateResponse = restTemplate.exchange(baseUrl + "/" + issueIdToUpdate + "/update/" + userId, HttpMethod.PATCH, updateRequestEntity, ResponseIssueDTO.class);
+       // System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());
        // int issueId1 = scanner.nextInt();
 
         /*ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();

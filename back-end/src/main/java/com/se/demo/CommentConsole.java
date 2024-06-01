@@ -58,7 +58,7 @@ public class CommentConsole {
         // 코멘트 내용 입력
         System.out.print("Enter your comment: ");
         String commentText = scanner.nextLine();
-        
+
         // 현재 시간 설정
         LocalDateTime createdDate = LocalDateTime.now();
 
