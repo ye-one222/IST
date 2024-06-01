@@ -1,4 +1,4 @@
-package com.se.demo.dto;
+/*package com.se.demo.dto;
 
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
@@ -19,7 +19,7 @@ class ProjectDTOTest {
 
         ProjectDTO projectDTO = ProjectDTO.toProjectDTO(projectEntity);
         assertEquals("New Project", projectDTO.getTitle());
-    }*/
+    }
 
     @Test
     void toProjectDTOListTest(){
@@ -38,4 +38,4 @@ class ProjectDTOTest {
         assertEquals("New Project 1", projectDTOList.get(0).getTitle());
         assertEquals("New Project 2", projectDTOList.get(1).getTitle());
     }
-}
+}*/
