@@ -5,6 +5,7 @@ import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
+import com.se.demo.entity.ProjectEntity;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
@@ -126,6 +127,22 @@ public class IssueService {
         return issueEntityList.stream()
                 .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
+    }
+
+    public boolean checkProjMember(Integer userId, IssueDTO issueDTO) {
+        //userId가 프로젝트의 멤버인지
+        //이슈디티오의 플젝아이디로 플젝 찾고
+        Optional<ProjectEntity> projectEntity = projectRepository.findById(issueDTO.getProject_id());
+        //플젝에서 멤버 map으로 아이디 있는지 검사해야지
+        if(projectEntity.isPresent()){
+            List<MemberEntity> memberEntities = projectEntity.get().getMembers();
+            for (MemberEntity member : memberEntities) {
+               if( member.getUser_id() == userId){
+                   return true;
+               }
+            }
+        }
+        return false;
     }
 
     //통계분석
