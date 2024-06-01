@@ -1,11 +1,19 @@
 package com.se.demo;
 
+import aj.org.objectweb.asm.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.se.demo.controller.MemberController;
 import com.se.demo.controller.ProjectController;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.MemberDTO;
 import com.se.demo.dto.ProjectDTO;
+import com.se.demo.dto.ResponseProjectDTO;
+import com.se.demo.entity.IssueEntity;
+import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
+import com.se.demo.repository.MemberRepository;
+import com.se.demo.service.MemberService;
 import com.se.demo.service.ProjectService;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,11 +26,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 @Getter
 @Setter
@@ -31,51 +41,63 @@ import java.util.List;
 public class ProjectConsole {
 
     public static void main(String[] args) {
+
         String baseUrl = "http://localhost:8081/project";
+        String memberBaseUrl = "http://localhost:8081/user";
         // RestTemplate 생성
         RestTemplate restTemplate = new RestTemplate();
 
         // 스프링 부트 애플리케이션 컨텍스트를 로드합니다.
-        ConfigurableApplicationContext context = SpringApplication.run(ProjectConsole.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(com.se.demo.ProjectConsole.class, args);
 
-        // MemberController 컨트롤러의 빈을 가져옵니다.
-        MemberController memberController = context.getBean(MemberController.class);
+        // 프로젝트 서비스와 멤버 서비스의 빈을 가져옵니다.
+        ProjectService projectService = context.getBean(ProjectService.class);
+        MemberService memberService = context.getBean(MemberService.class);
 
-        ProjectController projectController = context.getBean(ProjectController.class);
 
-        // ProjectDTO 객체 생성
-        ProjectDTO projectDTO = new ProjectDTO();
-        projectDTO.setId(1);
-        projectDTO.setTitle("Project");
-        projectDTO.setLeader_id(1);
-        //projectDTO.setIssues(1);  // issues 필드 값 설정
-
-        //프로젝트 엔티티 생성
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setId(1);
-        projectEntity.setTitle("Project");
-        projectEntity.setLeader_id(1);
+        Scanner scanner = new Scanner(System.in);
 
-        //엔티티 확인
-        System.out.println("Created ProjectEntity: " +projectEntity);
+        System.out.println("Enter project Title: ");
+        String title = scanner.next();
+        projectEntity.setTitle(title);
+
+        System.out.println("Enter project Leader id: ");
+        int Leader_id = scanner.nextInt();
+        projectEntity.setLeader_id(Leader_id);
+// 멤버 리스트 생성
+        List<MemberEntity> memberEntities = new ArrayList<>();
 
 
-        // Issues 추가
-        List<IssueDTO> issues = new ArrayList<>();
-        IssueDTO issue1 = new IssueDTO();
-        issue1.setId(1);
-        issue1.setDescription("Issue 1");
-        issues.add(issue1);
 
-        IssueDTO issue2 = new IssueDTO();
-        issue2.setId(2);
-        issue2.setDescription("Issue 2");
-        issues.add(issue2);
+        // 사용자로부터 멤버 정보 입력 받기
+        System.out.println("Enter the number of members: ");
+        int numberOfMembers = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
 
-        projectDTO.setIssues(issues);
+        for (int i = 0; i < numberOfMembers; i++) {
+            MemberEntity memberEntity = new MemberEntity();
+
+
+            System.out.println("Enter nickname for member " + (i + 1) + ": ");
+            String nickname = scanner.next();
+            memberEntity.setNickname(nickname);
+
+
+            // 리스트에 멤버 추가
+            memberEntities.add(memberEntity);
+
+        }
+
+        // 멤버 엔티티 목록을 프로젝트 엔티티에 설정
+        projectEntity.setMembers(memberEntities);
+
+// 멤버 엔티티 목록을 프로젝트 엔티티에 설정
+      //  projectEntity.setMembers(members);
 
         // Members 추가
-        MemberDTO member1 = new MemberDTO();
+        /*MemberDTO member1 = new MemberDTO();
         member1.setUser_id(1);
         member1.setNickname("john");
         member1.setPassword("123");
@@ -88,10 +110,22 @@ public class ProjectConsole {
         // 멤버 리스트에 추가
         List<MemberDTO> members = new ArrayList<>();
         members.add(member1);
-        members.add(member2);
+        members.add(member2);*/
 
-        // ProjectDTO에 멤버 리스트 추가
-        projectDTO.setMembers(members);
+
+        //dto 생성
+        ProjectDTO projectDTO = new ProjectDTO();
+        projectDTO.setId(projectEntity.getId());
+        projectDTO.setTitle(title);
+        projectDTO.setLeader_id(Leader_id);
+        //projectDTO.setMembers(memberEntities);
+
+
+
+
+        //DTO 확인
+        System.out.println("Created Project DTO : " + projectDTO);
+
 
         // HttpHeaders 설정
         HttpHeaders headers = new HttpHeaders();
@@ -105,28 +139,56 @@ public class ProjectConsole {
 
         // 프로젝트 생성 요청을 보냅니다.
         ResponseEntity<ProjectDTO> createProjectResponse = restTemplate.exchange(baseUrl + "/create", HttpMethod.POST, requestEntity, ProjectDTO.class);
-        System.out.println("Create Project Response: " + createProjectResponse.getBody());
-        System.out.println("ID: " + projectDTO.getId());
-        System.out.println("Title: " + projectDTO.getTitle());
-        System.out.println("Leader: " + projectDTO.getLeader_id());
+        ProjectDTO createdProject = createProjectResponse.getBody();
+        assert createdProject != null;
+
+        // 프로젝트 생성 확인
+        //System.out.println("Created Project: " + createdProject);
+
+        ProjectEntity createdProjectEntity = projectService.save(projectDTO);
+        System.out.println("Create Project Response: " + createdProjectEntity);
 
 
         // 프로젝트 조회 요청을 보냅니다.
         ResponseEntity<ProjectDTO> getProjectResponse = restTemplate.getForEntity(baseUrl + "/" + projectDTO.getId(), ProjectDTO.class);
-        System.out.println("Search Project Response: " + getProjectResponse.getBody());
-        System.out.println("ID: " + projectDTO.getId());
-        System.out.println("Title: " + projectDTO.getTitle());
-        System.out.println("Leader: " + projectDTO.getLeader_id());
+        //ProjectDTO retrievedProject = getProjectResponse.getBody();
+        //System.out.println("Search Project Response: " + retrievedProject);
+        ResponseProjectDTO retrievedProject = projectService.findById(createdProjectEntity.getId());
+        System.out.println("Retrieved Project: " + retrievedProject);
 
         //나의 전체 프로젝트 조회
-        ResponseEntity<ProjectDTO[]> searchProjectResponse1 = restTemplate.getForEntity(baseUrl + "/my/"+ member1.getUser_id(), ProjectDTO[].class);
-        System.out.println("Get My Project Response: " + Arrays.toString(searchProjectResponse1.getBody()));
-        // 첫 번째 사용자의 프로젝트 조회 결과 출력
+        System.out.println("Enter your user ID: ");
+        int userId = scanner.nextInt();
+        //ResponseEntity<ProjectDTO[]> searchProjectResponse1 = restTemplate.getForEntity(baseUrl + "/my/" +userId, ProjectDTO[].class);
+        List<ResponseProjectDTO> myProjects = projectService.findByUserId(userId);
+        System.out.println("My Projects: " + myProjects);
 
+        // 특정 프로젝트의 모든 이슈 조회
+        //assert createdProject != null;
+        ResponseEntity<IssueDTO[]> getProjectIssuesResponse = restTemplate.getForEntity(baseUrl + "/" + createdProjectEntity.getId() + "/issues", IssueDTO[].class);
+        IssueDTO[] projectIssues = getProjectIssuesResponse.getBody();
 
-        ResponseEntity<ProjectDTO[]> searchProjectResponse2 = restTemplate.getForEntity(baseUrl + "/my/"+ member2.getUser_id(), ProjectDTO[].class);
-        System.out.println("Get My Project Response: " + Arrays.toString(searchProjectResponse2.getBody()));
-        // 두 번째 사용자의 프로젝트 조회 결과 출력
+        System.out.println("Get Project Issues Response: " + Arrays.toString(projectIssues));
+
+        // 이슈 생성
+        IssueDTO issueDTO = new IssueDTO();
+        System.out.println("Enter issue title: ");
+        String issueTitle = scanner.next();
+        System.out.println("Enter issue reporter_id: ");
+        int reporterId = scanner.nextInt();
+        System.out.println("Enter issue description: ");
+        String description = scanner.next();
+        issueDTO.setTitle(issueTitle);
+        issueDTO.setReporter_id(reporterId);
+        issueDTO.setDescription(description);
+        issueDTO.setId(1);
+        issueDTO.setProject_id(createdProjectEntity.getId());
+
+        IssueEntity createdIssueEntity = projectService.createIssue(issueDTO);
+        System.out.println("Created Issue: " + createdIssueEntity);
+
 
     }
 }
+
+

@@ -182,13 +182,11 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-<<<<<<< HEAD
 
-=======
     @GetMapping("/{user_nickname}")
     public int getUser(@PathVariable("user_nickname") String userNickname) {
         return memberService.findByNickname(userNickname);
     }
->>>>>>> 08706729e8c16330e9c6718763f2981c98372624
+
 }
 

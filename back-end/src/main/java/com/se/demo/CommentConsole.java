@@ -1,0 +1,111 @@
+package com.se.demo;
+
+import com.se.demo.dto.CommentDTO;
+import com.se.demo.dto.MemberDTO;
+import com.se.demo.entity.CommentEntity;
+import com.se.demo.entity.IssueEntity;
+import com.se.demo.entity.MemberEntity;
+import com.se.demo.service.CommentService;
+import com.se.demo.service.MemberService;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Scanner;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@SpringBootApplication
+public class CommentConsole {
+    public static void main(String[] args) {
+        // API 호출할 URL
+        String baseUrl = "http://localhost:8081/api";
+
+        // 스프링 부트 애플리케이션 컨텍스트를 로드합니다.
+        ConfigurableApplicationContext context = SpringApplication.run(IssueConsole.class, args);
+
+        // CommentService 빈 가져오기
+        CommentService commentService = context.getBean(CommentService.class);
+        MemberService memberService = context.getBean(MemberService.class);
+
+        CommentEntity commentEntity = new CommentEntity();
+
+        // RestTemplate 객체 생성
+        RestTemplate restTemplate = new RestTemplate();
+
+
+        Scanner scanner = new Scanner(System.in);
+        // 이슈 선택
+        System.out.print("Enter the ID of the issue to comment on: ");
+        int issueId = scanner.nextInt();
+        scanner.nextLine();  // consume the newline
+
+
+        // 코멘트 내용 입력
+        System.out.print("Enter your comment: ");
+        String commentText = scanner.nextLine();
+
+        // 사용자의 닉네임
+        String nickName = "testUser"; // 실제 존재하는 사용자 닉네임
+
+        // 새로운 코멘트 생성
+        CommentDTO newComment = new CommentDTO();
+        newComment.setDescription(commentText);
+        newComment.setIssue_id(issueId);
+        // HttpHeaders 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        // HttpEntity 생성
+        HttpEntity<CommentDTO> requestEntity = new HttpEntity<>(newComment, headers);
+
+        try {
+            // 코멘트 저장 API 호출
+            ResponseEntity<CommentDTO> response = restTemplate.exchange(
+                    baseUrl + "/comments/create",
+                    HttpMethod.POST,
+                    requestEntity,
+                    CommentDTO.class
+            );
+
+            // 저장된 코멘트 출력
+            CommentDTO savedComment = response.getBody();
+            System.out.println("Saved Comment: " + savedComment);
+
+            // 특정 이슈의 댓글 목록 조회 API 호출
+            ResponseEntity<List<CommentDTO>> commentResponse = restTemplate.exchange(
+                    baseUrl + "/issue/" + issueId + "/comments",
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<CommentDTO>>() {}
+            );
+
+            // 댓글 목록 출력
+            List<CommentDTO> commentsForIssue = commentResponse.getBody();
+            System.out.println("Comments for Issue " + issueId + ": ");
+            for (CommentDTO comment : commentsForIssue) {
+                System.out.println(comment);
+            }
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        } finally {
+            // Spring ApplicationContext 종료
+            context.close();
+        }
+
+
+
+    }
+}

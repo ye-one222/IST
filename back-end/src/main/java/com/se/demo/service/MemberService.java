@@ -73,8 +73,8 @@ public class MemberService {
         return optionalMemberEntity.get();
     }
 
-<<<<<<< HEAD
-    public boolean checkId(String id) {
+
+  /*  public boolean checkId(String id) {
         //return memberRepository.existsById(Integer.parseInt(id));
         try {
             int parsedId = Integer.parseInt(id);
@@ -82,8 +82,8 @@ public class MemberService {
         } catch (NumberFormatException e) {
             // id가 정수로 변환할 수 없는 경우 false를 반환
             return false;
-        }
-=======
+        }*/
+
     public boolean checkId(String nickname) {
         try {
             System.out.println(nickname);
@@ -103,7 +103,7 @@ public class MemberService {
         MemberEntity memberEntity = memberRepository.findByNickname(nickname)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user nickname"));
         return memberEntity.getUser_id();
->>>>>>> 08706729e8c16330e9c6718763f2981c98372624
+
     }
 
 
