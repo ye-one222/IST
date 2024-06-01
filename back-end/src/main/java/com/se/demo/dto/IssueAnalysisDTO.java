@@ -18,6 +18,12 @@ public class IssueAnalysisDTO {
 @Setter
 class MonthlyIssueAnalysis {
     private int month;
-    private Map<String, Integer> statusCounts; //key: 상태, value: 해당상태의 이슈개수
+
+    private int newCnt;
+    private int assignedCnt;
+    private int fixedCnt;
+    private int resolvedCnt;
+    private int closedCnt;
+    private int reopened;
 
 }

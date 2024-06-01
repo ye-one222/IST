@@ -5,6 +5,7 @@ import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
+import com.se.demo.entity.ProjectEntity;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -78,11 +80,13 @@ public class IssueService {
                         String reporterNickname = memberRepository.findById(issueEntity.getReporterId())
                                 .orElseThrow(() -> new RuntimeException("해당 리포터가 디비에 없음")).getNickname();
                         responseIssueDTO.setReporter_nickname(reporterNickname);
-
-                        String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
-                                .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
-                        responseIssueDTO.setAssignee_nickname(assigneeNickname);
-                        //responseIssueDTO.setAssignee_nickname(memberRepository.findById(issueEntity.getAssigneeId()).get().getNickname());
+                        //여기서 assignee_nickname
+                        //상태가 new인지 확인하는 로직 필요하네
+                        if(!Objects.equals(issueEntity.getState(), "new")){
+                            String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
+                                    .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
+                            responseIssueDTO.setAssignee_nickname(assigneeNickname);
+                        }
                         return responseIssueDTO;
                     })
                     .collect(Collectors.toList());
@@ -123,6 +127,22 @@ public class IssueService {
         return issueEntityList.stream()
                 .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
+    }
+
+    public boolean checkProjMember(Integer userId, IssueDTO issueDTO) {
+        //userId가 프로젝트의 멤버인지
+        //이슈디티오의 플젝아이디로 플젝 찾고
+        Optional<ProjectEntity> projectEntity = projectRepository.findById(issueDTO.getProject_id());
+        //플젝에서 멤버 map으로 아이디 있는지 검사해야지
+        if(projectEntity.isPresent()){
+            List<MemberEntity> memberEntities = projectEntity.get().getMembers();
+            for (MemberEntity member : memberEntities) {
+               if( member.getUser_id() == userId){
+                   return true;
+               }
+            }
+        }
+        return false;
     }
 
     //통계분석

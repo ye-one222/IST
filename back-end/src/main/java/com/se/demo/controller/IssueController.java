@@ -14,6 +14,7 @@ import com.se.demo.dto.ChangeIssueStateRequest;
 
 
 import java.util.List;
+import java.util.Objects;
 
 @Setter
 @Getter
@@ -22,17 +23,6 @@ import java.util.List;
 @RequestMapping("/issue")
 public class IssueController {
     private final IssueService issueService;
-
-    //create
-    /*@PostMapping("/create")
-    public IssueDTO createIssue(@ModelAttribute IssueDTO issueDTO) {
-        //받아온 issue 정보를 디비에 저장해줘야지
-        //서비스의 매소드로 넘겨주기
-        IssueEntity issueEntity = issueService.createIssue(issueDTO);
-
-
-        return IssueService.toIssueDTO(issueEntity);
-    }*/
 
     @GetMapping("/{id}")
     public ResponseIssueDTO findById(@PathVariable Integer id) {
@@ -54,19 +44,42 @@ public class IssueController {
             return ResponseEntity.notFound().build(); // 요청된 issue_id에 해당하는 이슈가 없음
         }
 
-        if (!issueDTO.getState().equals(request.getOldState()) || issueDTO.getPl_id() != user_id) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("이슈상태가 올바른 단계가 아니거나 너 권한 없음");
+        if (!issueDTO.getState().equals(request.getOldState())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("그 전 이슈상태가 요청과 다름");
         }
 
         issueDTO.setState(request.getNewState());
         if(request.getNewState().equals("assigned")){   //assigned이면
-            if(request.getAssignee_id() == null){
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("assigned할거면 담당자를 입력하세여;;");
+            if(issueDTO.getPl_id() == user_id){
+                if(request.getAssignee_id() == null){
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("assigned할거면 담당자를 입력하세여;;");
+                }
+                //여기서 멤버인지 검사하는 매소드 불러야함
+                if(issueService.checkProjMember(request.getAssignee_id(), issueDTO)){
+                    issueDTO.setAssignee_id(request.getAssignee_id());
+                }else {
+                    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("해당 assignee가 플젝 멤버에 없습니다");
+                }
+            }else{
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("assign을 하려면 pl이어야하는데 너 pl아님");
             }
-            issueDTO.setAssignee_id(request.getAssignee_id());
         }
-        if(request.getNewState().equals("fixed")){  //fixed이면
-            issueDTO.setFixer_id(issueDTO.getAssignee_id());
+
+         if(request.getNewState().equals("fixed")){  //fixed이면
+             if(issueDTO.getAssignee_id() == user_id){
+                 issueDTO.setFixer_id(issueDTO.getAssignee_id());
+             }
+             else{
+                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("fixed하려면 너가 assignee여야하는데 너 아님");
+             }
+        }
+
+        if(request.getNewState().equals("resolved") && !Objects.equals(issueDTO.getReporter_id(), user_id)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("resolved하려면 리포터여야하는 너 리포터 아님");
+        }
+
+        if(request.getNewState().equals("closed")||request.getNewState().equals("reopened")){
+            if(issueDTO.getPl_id() != user_id) return ResponseEntity.status(HttpStatus.FORBIDDEN).body("closed, reopened하려면 pl이어야하는데 너 아님");
         }
 
         IssueDTO updatedIssue = issueService.updateIssue(issueDTO);

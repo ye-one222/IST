@@ -2,6 +2,7 @@ package com.se.demo.controller;
 
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ProjectDTO;
+import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.dto.ResponseProjectDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.ProjectEntity;
@@ -37,7 +38,7 @@ public class ProjectController {
     }
 
     @GetMapping("/{project_id}/issues")
-    public List<IssueDTO> findIssuesByProjectId(@PathVariable int project_id) {
+    public List<ResponseIssueDTO> findIssuesByProjectId(@PathVariable int project_id) {
         return projectService.findByProjectId(project_id);
     }
 
