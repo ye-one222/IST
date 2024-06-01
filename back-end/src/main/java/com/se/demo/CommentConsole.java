@@ -61,7 +61,7 @@ public class CommentConsole {
         String nickName = "testUser"; // 실제 존재하는 사용자 닉네임
 
         // 새로운 코멘트 생성
-        CommentDTO newComment = new CommentDTO();
+        /*CommentDTO newComment = new CommentDTO();
         newComment.setDescription(commentText);
         newComment.setIssue_id(issueId);
         // HttpHeaders 설정
@@ -103,7 +103,7 @@ public class CommentConsole {
         } finally {
             // Spring ApplicationContext 종료
             context.close();
-        }
+        }*/
 
 
 

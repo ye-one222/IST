@@ -66,11 +66,11 @@ public class IssueConsole {
         HttpEntity<ChangeIssueStateRequest> updateRequestEntity = new HttpEntity<>(changeIssueStateRequest, headers);
 
         ResponseEntity<ResponseIssueDTO> updateIssueStateResponse = restTemplate.exchange(baseUrl + "/" + issueId + "/update/" + userId, HttpMethod.PATCH, updateRequestEntity, ResponseIssueDTO.class);
-        System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());*/
+        System.out.println("Update Issue State Response: " + updateIssueStateResponse.getBody());
         System.out.println("Enter issue id: ");
-        int issueId1 = scanner.nextInt();
+        int issueId1 = scanner.nextInt();*/
 
-        ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();
+        /*ChangeIssueStateRequest changeIssueStateRequest = new ChangeIssueStateRequest();
         changeIssueStateRequest.setOldState("open");
         changeIssueStateRequest.setNewState("assigned");
         changeIssueStateRequest.setAssignee_id(userId); // Example assignee ID
@@ -120,6 +120,6 @@ public class IssueConsole {
             }
         } else {
             System.out.println("Keyword is empty. Please enter a valid keyword.");
-        }
+        }*/
     }
 }
