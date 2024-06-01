@@ -96,11 +96,25 @@ public class IssueService {
         }
     }
 
-    public IssueDTO updateIssue(IssueDTO issueDTO){
+    /*public IssueDTO updateIssue(IssueDTO issueDTO){
         IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
         issueRepository.save(issueEntity);
         return IssueDTO.toIssueDTO(issueEntity);
+    }*/
+    //test에서 오류나서 아래와 같이 바꿈
+    public IssueDTO updateIssue(IssueDTO issueDTO) {
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
+
+        // Validate assignee_id
+        if (issueDTO.getAssignee_id() != 0) {
+            memberRepository.findById(issueDTO.getAssignee_id())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
+        }
+
+        issueRepository.save(issueEntity);
+        return IssueDTO.toIssueDTO(issueEntity);
     }
+
 
     public List<IssueDTO> search(String keyword) {
         //title에 keyword가 포함된 issueEntity List 반환
@@ -137,26 +151,11 @@ public class IssueService {
         if(projectEntity.isPresent()){
             List<MemberEntity> memberEntities = projectEntity.get().getMembers();
             for (MemberEntity member : memberEntities) {
-               if( member.getUser_id() == userId){
-                   return true;
-               }
+                if( member.getUser_id() == userId){
+                    return true;
+                }
             }
         }
         return false;
     }
-
-    //통계분석
-    //모든 이슈 서치하면서 각 달마다 개수 세기
-  /*  public IssueAnalysisDTO countAnalysis(Integer user_id){
-        //repo -> get all issue Entity
-        IssueAnalysisDTO issueAnalysisDTO = new IssueAnalysisDTO();
-        //내 이슈entity 찾기
-        List<IssueEntity> issueEntityList = issueRepository.findByReporterIdOrAssigneeIdOrPlId(user_id, user_id, user_id);
-        for(IssueEntity issueEntity : issueEntityList){
-            if(issueEntity.getDate())
-        }
-        return issueAnalysisDTO;
-    }*/
-
-
 }
