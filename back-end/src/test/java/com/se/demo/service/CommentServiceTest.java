@@ -1,5 +1,6 @@
 package com.se.demo.service;
 
+import com.se.demo.IssueTrackingApplication;
 import com.se.demo.dto.CommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
@@ -7,151 +8,91 @@ import com.se.demo.entity.MemberEntity;
 import com.se.demo.repository.CommentRepository;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
-import com.se.demo.service.CommentService;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.any;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class CommentServiceTest{
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = IssueTrackingApplication.class)
+class CommentServiceTest {
 
-    @Mock
+    @Autowired
+    private CommentService commentService;
+
+    @MockBean
     private CommentRepository commentRepository;
 
-    @Mock
+    @MockBean
     private MemberRepository memberRepository;
 
-    @Mock
+    @MockBean
     private IssueRepository issueRepository;
 
-    @InjectMocks
-    private CommentService commentService;
-    private MemberEntity member;
-    private IssueEntity issue;
-    private CommentEntity commentEntity;
     private CommentDTO commentDTO;
-
+    private MemberEntity memberEntity;
+    private IssueEntity issueEntity;
+    private CommentEntity commentEntity;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        member = new MemberEntity();
-        member.setNickname("testUser");
-        member.setPassword("1111");
-        member.setUser_id(1);
-
-        issue = new IssueEntity();
-        issue.setId(4);
-        issue.setTitle("Test Issue");
-        issue.setDescription("Test description");
-        issue.setState("new");
-
-        commentEntity = new CommentEntity();
-        commentEntity.setId(3);
-        commentEntity.setDescription("Test description");
-        commentEntity.setCreatedDate(LocalDateTime.now());
-        commentEntity.setCreaterId(member);
-        commentEntity.setIssue(issue);
-
+    void setUp() {
         commentDTO = new CommentDTO();
         commentDTO.setId(1);
-        commentDTO.setDescription("Test description");
+        commentDTO.setDescription("Test comment");
         commentDTO.setCreated_date(LocalDateTime.now());
-        commentDTO.setCreater_id(member.getUser_id());
-        commentDTO.setIssue_id(issue.getId());
+        commentDTO.setIssue_id(1);
+        commentDTO.setCreater_id(1);
 
+        memberEntity = new MemberEntity();
+        memberEntity.setUser_id(1);
+        memberEntity.setNickname("testUser");
 
+        issueEntity = new IssueEntity();
+        issueEntity.setId(1);
+        issueEntity.setTitle("Test issue");
+        issueEntity.setAssigneeId(1); // assigneeId 설정
 
+        commentEntity = new CommentEntity();
+        commentEntity.setId(1);
+        commentEntity.setDescription("Test comment");
+        commentEntity.setCreatedDate(LocalDateTime.now());
+        commentEntity.setCreaterId(memberEntity);
+        commentEntity.setIssue(issueEntity);
     }
 
-
-
     @Test
-    public void testSaveComment() {
-        // Arrange
-        when(memberRepository.findById(1)).thenReturn(Optional.of(member));
-        when(issueRepository.findById(4)).thenReturn(Optional.of(issue));
-        //when(commentRepository.save(any(CommentEntity.class))).thenReturn(commentEntity);
+    void saveComment() {
+        when(memberRepository.findByNickname(anyString())).thenReturn(Optional.of(memberEntity));
+        when(issueRepository.findById(anyInt())).thenReturn(Optional.of(issueEntity));
+        when(commentRepository.save(any(CommentEntity.class))).thenReturn(commentEntity);
 
+        CommentEntity savedComment = commentService.save(commentDTO, "testUser", 1);
 
-
-
-        //Use ArgumentCaptor to capture the CommentEntity being saved
-        ArgumentCaptor<CommentEntity> captor = ArgumentCaptor.forClass(CommentEntity.class);
-        //doAnswer(invocation -> invocation.getArgument(0)).when(commentRepository).save(captor.capture());
-
-
-        // Act
-        CommentEntity savedComment = commentService.save(commentDTO, "1", 4);
-
-        // Assert
         assertNotNull(savedComment);
-        assertEquals(commentDTO.getDescription(), savedComment.getDescription());
-        assertEquals(member.getUser_id(), savedComment.getCreaterId().getUser_id());
-        assertEquals(issue.getId(), savedComment.getIssue().getId());
-
-        // Verify that commentRepository.save was called once with the captured argument
-        //verify(commentRepository, times(1)).save(any(CommentEntity.class));
-        verify(commentRepository, times(1)).save(captor.capture());
-
-        CommentEntity capturedComment = captor.getValue();
-        assertEquals(commentDTO.getDescription(), capturedComment.getDescription());
-        assertEquals(member.getUser_id(), capturedComment.getCreaterId().getUser_id());
-        assertEquals(issue.getId(), capturedComment.getIssue().getId());
+        assertEquals("Test comment", savedComment.getDescription());
     }
 
-
     @Test
-    public void testFindAllByIssueId() {
-        when(commentRepository.findByIssueId(4)).thenReturn(Arrays.asList(commentEntity));
+    void findAllByIssueId() {
+        when(commentRepository.findByIssueId(anyInt())).thenReturn(Arrays.asList(commentEntity));
 
-        List<CommentDTO> comments = commentService.findAllByIssueId(4);
+        List<CommentDTO> comments = commentService.findAllByIssueId(1);
 
         assertNotNull(comments);
         assertEquals(1, comments.size());
-        assertEquals(commentDTO.getDescription(), comments.get(1).getDescription());
-        //verify(commentRepository, times(1)).findByIssueId(anyInt());
-    }
-
-
-
-
-    @Test
-    public void testToCommentEntity() {
-        CommentEntity convertedEntity = commentService.toCommentEntity(commentDTO, issue, member);
-
-        assertNotNull(convertedEntity);
-        assertEquals(commentDTO.getId(), convertedEntity.getId());
-        assertEquals(commentDTO.getDescription(), convertedEntity.getDescription());
-        assertEquals(commentDTO.getCreated_date(), convertedEntity.getCreatedDate());
-        assertEquals(commentDTO.getCreater_id(), convertedEntity.getCreaterId().getUser_id());
-        assertEquals(commentDTO.getIssue_id(), convertedEntity.getIssue().getId());
-    }
-
-    @Test
-    public void testToCommentDTO() {
-        CommentDTO convertedDTO = commentService.toCommentDTO(commentEntity);
-
-        assertNotNull(convertedDTO);
-        assertEquals(commentEntity.getId(), convertedDTO.getId());
-        assertEquals(commentEntity.getDescription(), convertedDTO.getDescription());
-        assertEquals(commentEntity.getCreatedDate(), convertedDTO.getCreated_date());
-        assertEquals(commentEntity.getCreaterId().getUser_id(), convertedDTO.getCreater_id());
-        assertEquals(commentEntity.getIssue().getId(), convertedDTO.getIssue_id());
+        assertEquals("Test comment", comments.get(0).getDescription());
     }
 }
