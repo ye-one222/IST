@@ -1,9 +1,6 @@
 package com.se.demo.service;
 
-import com.se.demo.dto.IssueDTO;
-import com.se.demo.dto.MemberDTO;
-import com.se.demo.dto.ProjectDTO;
-import com.se.demo.dto.ResponseProjectDTO;
+import com.se.demo.dto.*;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
@@ -18,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -72,10 +70,24 @@ public class ProjectService {
         return responseProjectDTOList;
     }
 
-    public List<IssueDTO> findByProjectId(int projectId) {
+    public List<ResponseIssueDTO> findByProjectId(int projectId) {
         List<IssueEntity> issueEntityList = issueRepository.findByProjectId(projectId);
-        List<IssueDTO> issueDTOList = issueEntityList.stream()
-                .map(IssueDTO::toIssueDTO)
+        List<ResponseIssueDTO> issueDTOList = issueEntityList.stream()
+                .map(issueEntity -> {
+                    ResponseIssueDTO responseIssueDTO = new ResponseIssueDTO(IssueDTO.toIssueDTO(issueEntity));
+                    // 여기서 reporter_nickname
+                    String reporterNickname = memberRepository.findById(issueEntity.getReporterId())
+                            .orElseThrow(() -> new RuntimeException("해당 리포터가 디비에 없음")).getNickname();
+                    responseIssueDTO.setReporter_nickname(reporterNickname);
+                    //여기서 assignee_nickname
+                    //상태가 new인지 확인하는 로직 필요하네
+                    if(!Objects.equals(issueEntity.getState(), "new")){
+                        String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
+                                .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
+                        responseIssueDTO.setAssignee_nickname(assigneeNickname);
+                    }
+                    return responseIssueDTO;
+                })
                 .collect(Collectors.toList());
         return issueDTOList;
     }
