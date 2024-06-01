@@ -1,5 +1,6 @@
 package com.se.demo.service;
 
+import com.se.demo.IssueTrackingApplication;
 import com.se.demo.dto.CommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
@@ -9,10 +10,12 @@ import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -23,7 +26,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = IssueTrackingApplication.class)
 class CommentServiceTest {
 
     @Autowired

@@ -1,5 +1,6 @@
 package com.se.demo.controller;
 
+import com.se.demo.IssueTrackingApplication;
 import com.se.demo.dto.CommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
@@ -9,12 +10,16 @@ import com.se.demo.service.CommentService;
 import com.se.demo.service.MemberService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -28,7 +33,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CommentController.class)
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(classes = IssueTrackingApplication.class)
+@AutoConfigureMockMvc
 class CommentControllerTest {
 
     @Autowired

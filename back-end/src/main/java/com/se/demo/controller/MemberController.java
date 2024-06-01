@@ -95,9 +95,11 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
+
     @GetMapping("/{user_nickname}")
     public int getUser(@PathVariable("user_nickname") String userNickname) {
         return memberService.findByNickname(userNickname);
     }
+
 }
 

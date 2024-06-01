@@ -1,6 +1,4 @@
 package com.se.demo.service;
-import com.se.demo.dto.ChangeIssueStateRequest;
-import com.se.demo.dto.IssueAnalysisDTO;
 import com.se.demo.dto.IssueDTO;
 import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.entity.IssueEntity;
@@ -11,7 +9,6 @@ import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.springframework.stereotype.Service;

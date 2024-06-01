@@ -13,9 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.time.LocalDateTime;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -115,5 +114,60 @@ public class ProjectService {
 
         projectEntity.getMembers().add(memberEntity);
         return ProjectDTO.toProjectDTO(projectEntity);
+    }
+
+    //통계분석
+    //해당 플젝 이슈 서치하면서 각 달마다 개수 세기
+    public List<MonthlyAnalysisDTO> countAnalysis(Integer proj_id){
+
+        //그 리스트 반복문 돌려서 각 issueEntity 마다 getState해서 new, assigned, fixed에서 같은 상태있는지 파악하고
+        // issueAnalysisDTO에서 각각 setNewCnt, setAssignedCnt 등등 에서 증가시키기
+        List<IssueEntity> issueEntityList = issueRepository.findByProjectId(proj_id);
+        //IssueAnalysisDTO issueAnalysisDTO = new IssueAnalysisDTO();
+        List<MonthlyAnalysisDTO> monthlyIssueAnalysisList = new ArrayList<>();
+
+        //월별 그룹화를 위한 맵
+        Map<Integer, MonthlyAnalysisDTO> monthlyMap = new HashMap<>();
+        for(IssueEntity issueEntity : issueEntityList){
+            LocalDateTime date = issueEntity.getDate();
+            int month = date.getMonthValue();
+
+            //해당 월의 그룹이 없으면 새로운 그룹 생성
+            MonthlyAnalysisDTO monthlyIssueAnalysis = monthlyMap.getOrDefault(month, new MonthlyAnalysisDTO());
+            //각 상태에 따라 카운트 증가
+            switch (issueEntity.getState()) {
+                case "new":
+                    monthlyIssueAnalysis.setNewCnt(monthlyIssueAnalysis.getNewCnt() + 1);
+                    break;
+                case "assigned":
+                    monthlyIssueAnalysis.setAssignedCnt(monthlyIssueAnalysis.getAssignedCnt() + 1);
+                    break;
+                case "fixed":
+                    monthlyIssueAnalysis.setFixedCnt(monthlyIssueAnalysis.getFixedCnt() + 1);
+                    break;
+                case "resolved":
+                    monthlyIssueAnalysis.setResolvedCnt(monthlyIssueAnalysis.getResolvedCnt() + 1);
+                    break;
+                case "closed":
+                    monthlyIssueAnalysis.setClosedCnt(monthlyIssueAnalysis.getClosedCnt() + 1);
+                    break;
+                case "reopened":
+                    monthlyIssueAnalysis.setReopened(monthlyIssueAnalysis.getReopened() + 1);
+                    break;
+                default:
+                    // 다른 상태 처리
+                    break;
+            }
+            // 맵에 업데이트된 그룹 저장
+            monthlyMap.put(month, monthlyIssueAnalysis);
+        }
+        // 맵에서 값들을 리스트에 추가
+        for (Map.Entry<Integer, MonthlyAnalysisDTO> entry : monthlyMap.entrySet()) {
+            MonthlyAnalysisDTO monthlyIssueAnalysis = entry.getValue();
+            monthlyIssueAnalysis.setMonth(entry.getKey());
+            monthlyIssueAnalysisList.add(monthlyIssueAnalysis);
+        }
+        ///issueAnalysisDTO.setMonthlyIssueAnalysisList(monthlyIssueAnalysisList);
+        return monthlyIssueAnalysisList;
     }
 }
