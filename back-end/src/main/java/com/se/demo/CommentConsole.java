@@ -1,5 +1,6 @@
 package com.se.demo;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.se.demo.dto.CommentDTO;
 import com.se.demo.dto.MemberDTO;
 import com.se.demo.entity.CommentEntity;
@@ -48,11 +49,27 @@ public class CommentConsole {
         System.out.print("Enter your nickname: ");
         String nickName = scanner.nextLine();
 
+        // 유저 정보 조회
+        String userUrl = "http://localhost:8081/user/" + nickName;
+
+        int userId = -1; // 기본값, 만약 유저를 찾지 못하면
+        try {
+            ResponseEntity<Integer> userResponse = restTemplate.getForEntity(userUrl, Integer.class);
+            userId = userResponse.getBody();
+            if (userId == -1) {
+                System.err.println("User not found");
+            }
+        } catch (HttpClientErrorException e) {
+            System.err.println("Error fetching user: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error: " + e.getMessage());
+        }
 
         // 이슈 선택
         System.out.print("Enter the ID of the issue to comment on: ");
         int issueId = scanner.nextInt();
         scanner.nextLine();  // consume the newline
+
 
 
         // 코멘트 내용 입력
@@ -67,43 +84,15 @@ public class CommentConsole {
         newComment.setDescription(commentText);
         newComment.setCreated_date(createdDate);
         newComment.setIssue_id(issueId);
-
-        // HttpHeaders 설정
-        /*HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", "application/json");
-
-        // HttpEntity 생성
-        HttpEntity<CommentDTO> requestEntity = new HttpEntity<>(newComment, headers);
+        newComment.setCreater_id(userId);
 
         try {
-            // 코멘트 저장 API 호출
-            ResponseEntity<CommentDTO> response = restTemplate.exchange(
-                    baseUrl + "/comments/create",
-                    HttpMethod.POST,
-                    requestEntity,
-                    CommentDTO.class
-            );
-
-            // 저장된 코멘트 출력
-            CommentDTO savedComment = response.getBody();
-            System.out.println("Saved Comment: " + savedComment);
-
-            // 특정 이슈의 댓글 목록 조회 API 호출
-            ResponseEntity<List<CommentDTO>> commentResponse = restTemplate.exchange(
-                    baseUrl + "/issue/" + issueId + "/comments",
-                    HttpMethod.GET,
-                    null,
-                    new ParameterizedTypeReference<List<CommentDTO>>() {}
-            );*/
-        try {
-            // 코멘트 저장 API 호출
             ResponseEntity<CommentDTO> response = restTemplate.postForEntity(
                     baseUrl + "/comments/create",
                     newComment,
                     CommentDTO.class
             );
 
-            // 저장된 코멘트 출력
             CommentDTO savedComment = response.getBody();
             System.out.println("Saved Comment: " + savedComment);
         } catch (HttpClientErrorException e) {
@@ -115,6 +104,10 @@ public class CommentConsole {
         } catch (Exception e) {
             System.err.println("Failed to save comment: " + e.getMessage());
         }
+
+
+
+
 
     }
 }

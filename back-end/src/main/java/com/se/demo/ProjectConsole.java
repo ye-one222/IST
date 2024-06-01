@@ -69,8 +69,6 @@ public class ProjectConsole {
 // 멤버 리스트 생성
         List<MemberEntity> memberEntities = new ArrayList<>();
 
-
-
         // 사용자로부터 멤버 정보 입력 받기
         System.out.println("Enter the number of members: ");
         int numberOfMembers = scanner.nextInt();

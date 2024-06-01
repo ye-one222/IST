@@ -37,6 +37,7 @@ public class IssueDTO {
         if (issueEntity.getAssigneeId() == null) {
             throw new IllegalArgumentException("Assignee ID cannot be null");
         }
+
         IssueDTO issueDTO = new IssueDTO();
         issueDTO.setId(issueEntity.getId());
         issueDTO.setTitle((issueEntity.getTitle()));
