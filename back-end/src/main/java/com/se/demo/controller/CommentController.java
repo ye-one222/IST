@@ -54,7 +54,7 @@ public class CommentController {
     }
 
 
-    @PostMapping("/comments/create")
+    /*@PostMapping("/comments/create")
     @ResponseBody
     public ResponseEntity<?> saveComment(@RequestBody CommentDTO request, HttpServletRequest httpServletRequest) {
         try {
@@ -62,6 +62,23 @@ public class CommentController {
             HttpSession httpSession = httpServletRequest.getSession();
             String nickName = (String) httpSession.getAttribute("userNickname");
             CommentEntity savedCommentEntity = commentService.save(request, nickName, issueId);
+            CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
+
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(savedComment);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }*/
+
+    @PostMapping("/comments/create")
+    @ResponseBody
+    public ResponseEntity<?> saveComment(@RequestBody CommentDTO request) {
+        try {
+            int issueId = request.getIssue_id();
+            CommentEntity savedCommentEntity = commentService.save(request, issueId);
             CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
 
             return ResponseEntity.ok()
