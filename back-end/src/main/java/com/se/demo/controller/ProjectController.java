@@ -6,6 +6,7 @@ import com.se.demo.entity.ProjectEntity;
 import com.se.demo.service.IssueService;
 import com.se.demo.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -60,4 +61,12 @@ public class ProjectController {
         return projectService.countAnalysis(proj_id);
     }
 
+    @GetMapping("/{project_id}/{user_id}")
+    public ResponseEntity<?> isLeader(@PathVariable("project_id") int project_id, @PathVariable("user_id") int user_id){
+        if(projectService.isLeader(project_id, user_id)){
+            return ResponseEntity.ok(projectService.isLeader(project_id, user_id));
+        }else{
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("pl이 아닙니다");
+        }
+    }
 }
