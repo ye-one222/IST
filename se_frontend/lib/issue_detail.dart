@@ -71,7 +71,7 @@ class _IssueDetailState extends State<IssueDetail> {
       return;
     }
 
-    final url = 'http://localhost:8081/api/comments/create'; // 수정된 URL
+    const url = 'http://localhost:8081/api/comments/create'; // 수정된 URL
     final headers = {"Content-Type": "application/json"};
     final body = json.encode({
       "creater_id": widget.userId, // 여기에서 creator_id를 creater_id로 변경
@@ -108,7 +108,7 @@ class _IssueDetailState extends State<IssueDetail> {
     }
   }
 
-  // Fetch user ID from nickname
+  // ID로부터 nickname 받아오기
   Future<int?> _fetchUserId(String nickname) async {
     final url = 'http://localhost:8081/user/$nickname'; // URL 설정
     final response = await http.get(
@@ -122,13 +122,15 @@ class _IssueDetailState extends State<IssueDetail> {
       return int.tryParse(response.body);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('User not found')),
+        const SnackBar(
+            content: Text(
+                'Failed to find user. Please check the nickname and try again')),
       );
       return null;
     }
   }
 
-  // Assign user to the issue
+  // 이슈 배정 (new -> assigned)
   Future<void> _assignUser() async {
     if (_assigneeController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -137,12 +139,11 @@ class _IssueDetailState extends State<IssueDetail> {
       return;
     }
 
-    final assgineeId = await _fetchUserId(_assigneeController.text);
-
-    if (assgineeId == null) return;
+    final assigneeId =
+        await _fetchUserId(_assigneeController.text); // 닉네임으로부터 바꾼 id
 
     final url =
-        'http://localhost:8081/issue/${widget.issue.id}/update/${assgineeId}'; // URL 설정
+        'http://localhost:8081/issue/${widget.issue.id}/update/${widget.userId}'; // 로그인한 사용자 id를 넘겨줘야 함.
     final headers = {"Content-Type": "application/json"};
     const oldState = 'new';
     const newState = 'assigned';
@@ -150,7 +151,7 @@ class _IssueDetailState extends State<IssueDetail> {
     Map<String, dynamic> body = {
       "oldState": oldState,
       "newState": newState,
-      "assignee_id": assgineeId,
+      "assignee_id": assigneeId,
     };
 
     final response = await http.patch(
@@ -163,7 +164,7 @@ class _IssueDetailState extends State<IssueDetail> {
       case 200:
         setState(() {
           widget.issue.state = IState.ASSIGNED;
-          widget.issue.assignee = assgineeId;
+          widget.issue.assignee = assigneeId;
           _selectedState = IState.ASSIGNED;
         });
         ScaffoldMessenger.of(context).showSnackBar(
@@ -194,7 +195,7 @@ class _IssueDetailState extends State<IssueDetail> {
     }
   }
 
-  // Update issue state
+  // 나머지 이슈 상태 변경
   Future<void> _updateState() async {
     if (_selectedState == IState.ASSIGNED && widget.issue.state == IState.NEW) {
       await _assignUser();
@@ -350,7 +351,7 @@ class _IssueDetailState extends State<IssueDetail> {
               ),
               const SizedBox(height: 10),
               Container(
-                constraints: BoxConstraints(maxHeight: 200),
+                constraints: const BoxConstraints(maxHeight: 200),
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: _comments.length,
