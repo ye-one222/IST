@@ -1,7 +1,6 @@
 package com.se.demo.service;
 
-import com.se.demo.dto.CommentDTO;
-import com.se.demo.dto.IssueDTO;
+import com.se.demo.dto.*;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
@@ -9,11 +8,13 @@ import com.se.demo.repository.CommentRepository;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -53,12 +54,20 @@ public class CommentService {
 
 
     @Transactional(readOnly = true)
-    public List<CommentDTO> findAllByIssueId(int id) {
+    public List<ResponseCommentDTO> findAllByIssueId(int id) {
         List<CommentEntity> comments = commentRepository.findByIssueId(id);
-        //Long issueId = null;
-        return comments.stream()
+        List<CommentDTO> commentDTOList = comments.stream()
                 .map(CommentDTO::new)
                 .collect(Collectors.toList());
+        List<ResponseCommentDTO> responseCommentDTOList = new ArrayList<>();
+
+        for(CommentDTO commentDTO : commentDTOList){
+            MemberEntity createrEntity = memberRepository.findById(commentDTO.getCreater_id())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid creater nickname"));
+            ResponseCommentDTO responseCommentDTO = new ResponseCommentDTO(commentDTO, createrEntity.getNickname());
+            responseCommentDTOList.add(responseCommentDTO);
+        }
+        return responseCommentDTOList;
     }
 
     public CommentEntity toCommentEntity(CommentDTO commentDTO, IssueEntity issueEntity, MemberEntity createrEntity){
