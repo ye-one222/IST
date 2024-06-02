@@ -111,9 +111,13 @@ public class ProjectService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
         MemberEntity memberEntity = memberRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid user ID"));
-
-        projectEntity.getMembers().add(memberEntity);
-        return ProjectDTO.toProjectDTO(projectEntity);
+        if(!projectEntity.getMembers().contains(memberEntity)){
+            projectEntity.getMembers().add(memberEntity);
+            return ProjectDTO.toProjectDTO(projectEntity);
+        }
+        else {
+            return null;
+        }
     }
 
     //통계분석
