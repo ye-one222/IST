@@ -31,7 +31,7 @@ class _IssueDetailState extends State<IssueDetail> {
     super.initState();
     _selectedState = widget.issue.state;
     _assigneeController =
-        TextEditingController(text: widget.issue.assignee?.toString());
+        TextEditingController(text: widget.issue.assigneeNickname);
     _commentController = TextEditingController(); // 류: 댓글 부분
     _fetchComments(); // 류: 댓글 불러오기
   }
@@ -322,7 +322,7 @@ class _IssueDetailState extends State<IssueDetail> {
               ),
               DetailBox(
                 item: 'Reporter',
-                content: widget.issue.reporter.toString(),
+                content: widget.issue.reporterNickname,
               ),
               const Text(
                 'Assignee(Fixer)',
