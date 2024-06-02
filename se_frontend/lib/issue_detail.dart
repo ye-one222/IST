@@ -1,12 +1,8 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart'; //류: 날짜떄문에 추가
 import 'package:se_frontend/files/issueClass.dart';
 import 'package:se_frontend/widgets/detail_box.dart';
-
-// 로그인한 user의 id를 넘겨줘야 함.
 
 class IssueDetail extends StatefulWidget {
   final Issue issue;
@@ -40,10 +36,100 @@ class _IssueDetailState extends State<IssueDetail> {
     super.dispose();
   }
 
-// 나머지 상태 변경 전송
-  Future<void> _updateState() async {
+  // Fetch user ID from nickname
+  Future<int?> _fetchUserId(String nickname) async {
+    final response = await http.get(
+      Uri.parse('http://localhost:8081/user/$nickname'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      return int.tryParse(response.body);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not found')),
+      );
+      return null;
+    }
+  }
+
+  // Assign user to the issue
+  Future<void> _assignUser() async {
+    if (_assigneeController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a user for the assignee.')),
+      );
+      return;
+    }
+
+    final assgineeId = await _fetchUserId(_assigneeController.text);
+
+    if (assgineeId == null) return;
+
     final url =
-        'http://localhost:8081/issue/${widget.issue.id}/update/${widget.userId}'; //  로그인한 user의 닉네임 넘겨줌.
+        'http://localhost:8081/issue/${widget.issue.id}/update/${assgineeId}';
+    final headers = {"Content-Type": "application/json"};
+    const oldState = 'new';
+    const newState = 'assigned';
+
+    Map<String, dynamic> body = {
+      "oldState": oldState,
+      "newState": newState,
+      "assignee_id": assgineeId,
+    };
+
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: headers,
+      body: json.encode(body),
+    );
+
+    switch (response.statusCode) {
+      case 200:
+        setState(() {
+          widget.issue.state = IState.ASSIGNED;
+          widget.issue.assignee = assgineeId;
+          _selectedState = IState.ASSIGNED;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'User assigned successfully. Status updated to assigned.')),
+        );
+        break;
+      case 401:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text(
+                  'The specified assignee is not part of the project team.')),
+        );
+        break;
+      case 403:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('You do not have permission to assign users.')),
+        );
+        break;
+      default:
+        print('${response.statusCode}\n\n');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to assign user. Please try again.')),
+        );
+    }
+  }
+
+  // Update issue state
+  Future<void> _updateState() async {
+    if (_selectedState == IState.ASSIGNED && widget.issue.state == IState.NEW) {
+      await _assignUser();
+      return;
+    }
+
+    final url =
+        'http://localhost:8081/issue/${widget.issue.id}/update/${widget.userId}';
     final headers = {"Content-Type": "application/json"};
     final oldState =
         widget.issue.state.toString().split('.').last.toLowerCase();
@@ -54,82 +140,39 @@ class _IssueDetailState extends State<IssueDetail> {
       "newState": newState,
     };
 
-    final response = await http.post(
+    final response = await http.patch(
       Uri.parse(url),
       headers: headers,
       body: json.encode(body),
     );
 
-    if (response.statusCode == 200) {
-      setState(() {
-        widget.issue.state = _selectedState;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(
-                'Status updated to ${_selectedState.toString().split('.').last}')),
-      );
-    } else {
-      // 에러 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Failed to update status. Please try again.')),
-      );
-    }
-  }
-
-// assignee 배정 버튼 클릭 (new->assigneed) 전송
-  Future<void> _assignUser() async {
-    if (_assigneeController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a user for the assignee.')),
-      );
-      return;
-    }
-
-    final url =
-        'http://localhost:8081/issue/${widget.issue.id}/update/${widget.userId}';
-    final headers = {"Content-Type": "application/json"};
-    const oldState = 'new';
-    const newState = 'assigned';
-
-    Map<String, dynamic> body = {
-      "oldState": oldState,
-      "newState": newState,
-      "assignee_nickname":
-          int.tryParse(_assigneeController.text), // 임명할 사용자 nickname 전송
-    };
-
-    final response = await http.post(
-      Uri.parse(url),
-      headers: headers,
-      body: json.encode(body),
-    );
-
-    if (response.statusCode == 200) {
-      setState(() {
-        widget.issue.state = IState.ASSIGNED;
-        widget.issue.assignee = int.tryParse(_assigneeController.text);
-        _selectedState = IState.ASSIGNED;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text(
-                'User assigned successfully. Status updated to assigned.')),
-      );
-    } else {
-      // 에러 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Failed to assign user. Please try again.')),
-      );
+    switch (response.statusCode) {
+      case 200:
+        setState(() {
+          widget.issue.state = _selectedState;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Status updated to ${_selectedState.toString().split('.').last}')),
+        );
+        break;
+      case 403:
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('You do not have permission.')),
+        );
+        break;
+      default:
+        print('${response.statusCode}\n\n');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Failed to update status. Please try again.')),
+        );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    String formattedDate =
-        DateFormat('yyyy-MM-dd – kk:mm').format(widget.issue.date); //추가
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.issue.title),
@@ -142,14 +185,12 @@ class _IssueDetailState extends State<IssueDetail> {
             children: [
               DetailBox(
                 item: 'Title:',
-                content: widget.issue.description,
+                content: widget.issue.title,
               ),
               DetailBox(
                 item: 'Description',
                 content: widget.issue.description,
               ),
-              DetailBox(item: 'Date', content: formattedDate // 날짜
-                  ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -207,7 +248,7 @@ class _IssueDetailState extends State<IssueDetail> {
               ),
               DetailBox(
                 item: 'Reporter',
-                content: widget.issue.reporterNickname,
+                content: widget.issue.reporter.toString(),
               ),
               const Text(
                 'Assignee(Fixer)',
