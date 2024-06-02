@@ -111,7 +111,7 @@ class _ProjectPageState extends State<ProjectPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              _project.title,
+              'TITLE : ${_project.title}',
               style: const TextStyle(
                 fontSize: 25,
                 fontWeight: FontWeight.w900,
@@ -141,7 +141,7 @@ class _ProjectPageState extends State<ProjectPage> {
                 ),
               ),
             ),
-            // 멤버들 리스트
+            // 멤버들 표시 **********************************************************
             const SizedBox(height: 20),
             const Text(
               "Members",
@@ -150,33 +150,57 @@ class _ProjectPageState extends State<ProjectPage> {
             const SizedBox(height: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: _project.members.map((member) {
-                return Text(
-                  member.nickname,
-                  style: const TextStyle(fontSize: 18),
-                );
-              }).toList(),
+              children: [
+                Wrap(
+                  spacing: 8.0, // 멤버들 간의 가로 간격
+                  children: _project.members.map((member) {
+                    return Text(
+                      member.nickname,
+                      style: const TextStyle(fontSize: 18),
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-            // 멤버 추가 버튼
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                final result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddMember(
-                        projectId: _project.id, userId: widget.userId),
+            const SizedBox(height: 10), //******************* 맴버 추가 부분 */
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: SizedBox(
+                width: formFieldWidth,
+                height: 70,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => AddMember(
+                          projectId: _project.id,
+                          userId: widget.userId,
+                        ),
+                      ),
+                    );
+                    if (result == true) {
+                      _fetchProject(); // 돌아온 후 프로젝트 데이터 새로 고침
+                      Navigator.pop(context, true); // 변경된 내용 전달
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 255, 205, 220),
+                      fixedSize: const Size.fromHeight(50),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20))),
+                  child: Text(
+                    'Click here to\nadd Member',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: fontSize * 0.8,
+                        fontWeight: FontWeight.bold),
                   ),
-                );
-                if (result == true) {
-                  _fetchProject(); // 돌아온 후 프로젝트 데이터 새로 고침
-                  Navigator.pop(context, true); // 변경된 내용 전달
-                }
-              },
-              child: const Text('Add Member'),
+                ),
+              ),
             ),
             // 이슈 생성란 이동 버튼
-            const SizedBox(height: 50),
+            const SizedBox(height: 20),
             Align(
               alignment: Alignment.bottomCenter,
               child: SizedBox(
@@ -210,7 +234,7 @@ class _ProjectPageState extends State<ProjectPage> {
               ),
             ),
             // 플젝에 대한 이슈 보기란
-            const SizedBox(height: 30),
+            const SizedBox(height: 15),
             const Text(
               "Current Issues",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),

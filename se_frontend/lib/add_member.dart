@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:se_frontend/myDashBoard.dart';
 
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 class AddMember extends StatefulWidget {
   final int projectId;
   final int userId;
@@ -92,26 +94,65 @@ class _AddMemberState extends State<AddMember> {
       appBar: AppBar(title: const Text('Add Member')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _nicknameController,
-              decoration: const InputDecoration(labelText: 'Member Nickname'),
-            ),
-            const SizedBox(height: 20),
-            if (_isLoading)
-              const CircularProgressIndicator()
-            else if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              const Text(
+                'Nickname',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _checkAndAddMember,
-              child: const Text('Add Member'),
-            ),
-          ],
+              TextFormField(
+                controller: _nicknameController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a nickname';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 40),
+              Align(
+                  alignment: Alignment.bottomCenter,
+                  child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      height: 70,
+                      child: ElevatedButton(
+                          onPressed: _checkAndAddMember,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor:
+                                  const Color.fromARGB(255, 255, 205, 220),
+                              fixedSize: const Size.fromHeight(50),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20))),
+                          child: const Text(
+                            'Click here to\nadd Member',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                color: Color.fromARGB(255, 0, 0, 0),
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          )))),
+            ],
+          ),
         ),
       ),
     );
