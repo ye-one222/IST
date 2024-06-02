@@ -47,12 +47,6 @@ public class MemberConsole {
 
 
 
-        // Accept user input for user_id
-        System.out.print("Enter user ID: ");
-        int userId = scanner.nextInt();
-        memberEntity.setUser_id(userId);
-
-
         // Accept user input for nickname
         System.out.print("Enter nickname: ");
         String nickname = scanner.next();
@@ -65,34 +59,31 @@ public class MemberConsole {
         memberEntity.setPassword(password);
 
 
-        // Print the created MemberEntity
-        System.out.println("Created MemberEntity: " + memberEntity);
 
-        // Create MemberDTO object with user input
+        // 회원가입 실행
         MemberDTO memberDTO = new MemberDTO();
-        memberDTO.setUser_id(userId);
         memberDTO.setNickname(nickname);
         memberDTO.setPassword(password);
+        signup(baseUrl, restTemplate, memberDTO);
 
-        // Print the created MemberDTO
-        System.out.println("Created MemberDTO: " + memberDTO);
+        // 로그인 입력 받기
+        System.out.print("Enter nickname to login: ");
+        String loginNickname = scanner.next();
 
+        System.out.print("Enter password to login: ");
+        String loginPassword = scanner.next();
+
+        // 로그인 실행
+        MemberDTO loginMemberDTO = new MemberDTO();
+        loginMemberDTO.setNickname(loginNickname);
+        loginMemberDTO.setPassword(loginPassword);
+        login(baseUrl, restTemplate, memberDTO);
+    }
+
+    private static void signup(String baseUrl, RestTemplate restTemplate, MemberDTO memberDTO) {
         try {
-            // Send signup request
             ResponseEntity<Object> signupResponse = restTemplate.postForEntity(baseUrl + "/signup", memberDTO, Object.class);
             System.out.println("Signup Response: " + signupResponse.getBody());
-
-            // Send login request
-            ResponseEntity<MemberDTO> loginResponse = restTemplate.exchange(baseUrl + "/login", HttpMethod.POST, new HttpEntity<>(memberDTO), MemberDTO.class);
-
-            // Check response status
-            if (loginResponse.getStatusCode().is2xxSuccessful()) {
-                System.out.println("Login successful!");
-                MemberDTO responseBody = loginResponse.getBody();
-                System.out.println("Login Response: " + responseBody);
-            } else {
-                System.out.println("Login failed");
-            }
         } catch (HttpServerErrorException.InternalServerError ex) {
             System.err.println("Internal Server Error: " + ex.getMessage());
         } catch (HttpClientErrorException ex) {
@@ -100,20 +91,11 @@ public class MemberConsole {
         } catch (Exception ex) {
             System.err.println("Unexpected Error: " + ex.getMessage());
         }
+    }
 
-
-
-
-        //회원가입 요청 보내기
-        /*ResponseEntity<Object> signupResponse = memberController.signup(memberDTO);
-        System.out.println("Signup Response: " + signupResponse.getBody());
-
-
-
-        // 로그인 요청을 보냅니다.
-        ResponseEntity<MemberDTO> loginResponse = null;
+    private static void login(String baseUrl, RestTemplate restTemplate, MemberDTO memberDTO) {
         try {
-            loginResponse = restTemplate.exchange(baseUrl + "/login", HttpMethod.POST, new HttpEntity<>(memberDTO), MemberDTO.class);
+            ResponseEntity<MemberDTO> loginResponse = restTemplate.exchange(baseUrl + "/login", HttpMethod.POST, new HttpEntity<>(memberDTO), MemberDTO.class);
 
             // 응답 확인
             if (loginResponse.getStatusCode().is2xxSuccessful()) {
@@ -129,10 +111,15 @@ public class MemberConsole {
             System.err.println("HTTP Client Error: " + ex.getMessage());
         } catch (Exception ex) {
             System.err.println("Unexpected Error: " + ex.getMessage());
-        }*/
+        }
     }
-
-
-
-
 }
+
+
+
+
+
+
+
+
+
