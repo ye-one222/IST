@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:intl/intl.dart'; //류: 날짜떄문에 추가
 import 'package:se_frontend/files/issueClass.dart';
 import 'package:se_frontend/widgets/detail_box.dart';
 
@@ -128,6 +128,8 @@ class _IssueDetailState extends State<IssueDetail> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate =
+        DateFormat('yyyy-MM-dd – kk:mm').format(widget.issue.date); //추가
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.issue.title),
@@ -146,6 +148,8 @@ class _IssueDetailState extends State<IssueDetail> {
                 item: 'Description',
                 content: widget.issue.description,
               ),
+              DetailBox(item: 'Date', content: formattedDate // 날짜
+                  ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
