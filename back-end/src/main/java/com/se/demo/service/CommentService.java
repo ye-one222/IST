@@ -28,8 +28,9 @@ public class CommentService {
     private final MemberRepository memberRepository;
     private final IssueRepository issueRepository; // IssueRepository를 주입 받아야 함
 
-    public CommentEntity save(CommentDTO request, String nickName, int issueId) {
-        MemberEntity creater = memberRepository.findByNickname(nickName)
+    public CommentEntity save(CommentDTO request, int issueId) {
+        System.out.println("creater_id::"+request.getCreater_id());
+        MemberEntity creater = memberRepository.findById(request.getCreater_id())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member Nickname"));
 
         IssueEntity issueEntity = issueRepository.findById(issueId)
