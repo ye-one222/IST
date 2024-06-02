@@ -61,7 +61,6 @@ public class CommentController {
             int issueId = request.getIssue_id();
             HttpSession httpSession = httpServletRequest.getSession();
             String nickName = (String) httpSession.getAttribute("userNickname");
-            System.out.println(nickName);
             CommentEntity savedCommentEntity = commentService.save(request, nickName, issueId);
             CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
 
