@@ -1,9 +1,10 @@
 class Comment {
   final int id;
-  final int createrId; // 여기서 변수 이름이 creator_id가 아닌 creater_id인지 확인
+  final int createrId;
   final String description;
   final DateTime createdDate;
   final int issueId;
+  final String createrNickname;
 
   Comment({
     required this.id,
@@ -11,15 +12,18 @@ class Comment {
     required this.description,
     required this.createdDate,
     required this.issueId,
+    required this.createrNickname,
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
+    final commentDto = json['commentDTO'];
     return Comment(
-      id: json['id'] as int,
-      createrId: json['creater_id'] as int,
-      description: json['description'] as String,
-      createdDate: DateTime.parse(json['created_date'] as String),
-      issueId: json['issue_id'] as int,
+      id: commentDto['id'],
+      createrId: commentDto['creater_id'],
+      description: commentDto['description'],
+      createdDate: DateTime.parse(commentDto['created_date']),
+      issueId: commentDto['issue_id'],
+      createrNickname: json['creater_nickname'],
     );
   }
 }

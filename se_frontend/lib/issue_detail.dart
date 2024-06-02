@@ -44,12 +44,13 @@ class _IssueDetailState extends State<IssueDetail> {
   }
 
   Future<void> _fetchComments() async {
-    // 류: 댓글 불러오기 **************************
     final url = 'http://localhost:8081/api/issue/${widget.issue.id}/comments';
     try {
       final response = await http.get(Uri.parse(url));
-      if (response.statusCode == 200) {
+      print('###$response###${widget.issue.id}');
+      if (response.statusCode == 201 || response.statusCode == 200) {
         final List<dynamic> commentsJson = json.decode(response.body);
+        print(commentsJson);
         setState(() {
           _comments =
               commentsJson.map((json) => Comment.fromJson(json)).toList();
