@@ -62,16 +62,16 @@ class IssueBox extends StatelessWidget {
                   fontSize: 14,
                 )),
             const SizedBox(height: 10),
-            Text('우선순위: ${issue.priority.toString().split('.').last}',
+            /* Text('우선순위: ${issue.priority.toString().split('.').last}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
-                )),
-            Text('프로젝트 ID: ${issue.projectId}',
+                )),*/
+            /*  Text('프로젝트 ID: ${issue.projectId}',
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.grey,
-                )),
+                )),*/
           ],
         ),
       ),
