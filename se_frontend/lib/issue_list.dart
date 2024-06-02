@@ -43,9 +43,14 @@ class IssueListPageState extends State<IssueListPage> {
         // 성공하면
         final List<dynamic> issueJson = json.decode(response.body);
         setState(() {
-          issues = issueJson
-              .map((json) => Issue.fromJson(json))
-              .toList(); // 이슈 리스트 생성
+          issues = issueJson.map((json) {
+            final issueData = json['responseIssue'] as Map<String, dynamic>;
+            return Issue.fromJson({
+              ...issueData,
+              'reporter_nickname': json['reporter_nickname'],
+              'assignee_nickname': json['assignee_nickname'] ?? '', //추가
+            });
+          }).toList(); // 이슈 리스트 생성
           filteredIssues = issues;
         });
       } else {
