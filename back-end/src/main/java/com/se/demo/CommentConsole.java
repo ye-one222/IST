@@ -55,6 +55,7 @@ public class CommentConsole {
         int userId = -1; // 기본값, 만약 유저를 찾지 못하면
         try {
             ResponseEntity<Integer> userResponse = restTemplate.getForEntity(userUrl, Integer.class);
+            //MemberDTO user = userResponse.getBody();
             userId = userResponse.getBody();
             if (userId == -1) {
                 System.err.println("User not found");
