@@ -18,6 +18,8 @@ public class ResponseIssueDTO {
 
     public ResponseIssueDTO(IssueDTO issueDTO){
         this.responseIssue = issueDTO;
+        this.reporter_nickname = "";
+        this.assignee_nickname = "";
     }
 
 }
