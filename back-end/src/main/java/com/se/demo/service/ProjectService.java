@@ -174,4 +174,11 @@ public class ProjectService {
         ///issueAnalysisDTO.setMonthlyIssueAnalysisList(monthlyIssueAnalysisList);
         return monthlyIssueAnalysisList;
     }
+
+    public boolean isLeader(int projectId, int userId) {
+        ProjectEntity projectEntity = projectRepository.findById(projectId)
+                .orElseThrow(() -> new RuntimeException("해당 프로젝트가 DB에 없음"));
+        if(projectEntity.getLeader_id() == userId) return true;
+        else return false;
+    }
 }

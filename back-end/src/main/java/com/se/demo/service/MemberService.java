@@ -96,6 +96,4 @@ public class MemberService {
         return memberEntity.getUser_id();
 
     }
-
-
 }

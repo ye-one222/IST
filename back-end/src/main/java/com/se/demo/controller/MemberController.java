@@ -100,6 +100,5 @@ public class MemberController {
     public int getUser(@PathVariable("user_nickname") String userNickname) {
         return memberService.findByNickname(userNickname);
     }
-
 }
 
