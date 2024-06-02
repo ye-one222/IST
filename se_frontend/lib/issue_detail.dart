@@ -108,7 +108,7 @@ class _IssueDetailState extends State<IssueDetail> {
     }
   }
 
-  // ID로부터 nickname 받아오기
+  // nickname로부터 ID 받아오기
   Future<int?> _fetchUserId(String nickname) async {
     final url = 'http://localhost:8081/user/$nickname'; // URL 설정
     final response = await http.get(
