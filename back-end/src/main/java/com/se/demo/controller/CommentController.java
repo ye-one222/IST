@@ -2,6 +2,7 @@ package com.se.demo.controller;
 
 import com.se.demo.dto.CommentDTO;
 import com.se.demo.dto.IssueDTO;
+import com.se.demo.dto.ResponseCommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
@@ -43,9 +44,9 @@ public class CommentController {
     // 특정 이슈의 댓글 목록 및 댓글 생성 페이지
     @GetMapping("/issue/{id}/comments")
     @ResponseBody
-    public ResponseEntity<List<CommentDTO>> getCommentsForIssue(@PathVariable int id) {
+    public ResponseEntity<List<ResponseCommentDTO>> getCommentsForIssue(@PathVariable int id) {
         try {
-            List<CommentDTO> comments = commentService.findAllByIssueId(id);
+            List<ResponseCommentDTO> comments = commentService.findAllByIssueId(id);
             return ResponseEntity.ok(comments);
         } catch (Exception e) {
             e.printStackTrace();
