@@ -6,6 +6,7 @@ import 'package:se_frontend/issue_input_field.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:se_frontend/add_member.dart';
+import 'package:se_frontend/statistic.dart';
 
 class ProjectPage extends StatefulWidget {
   final Project project; // 현재 프로젝트 전달용
@@ -233,6 +234,35 @@ class _ProjectPageState extends State<ProjectPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 20),
+            Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                    width: formFieldWidth,
+                    height: 70,
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  IssueStatisticsScreen(projectId: _project.id),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 205, 220),
+                            fixedSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20))),
+                        child: Text(
+                          'Statistics',
+                          style: TextStyle(
+                              color: const Color.fromARGB(255, 0, 0, 0),
+                              fontSize: fontSize * 0.8,
+                              fontWeight: FontWeight.bold),
+                        )))),
             // 플젝에 대한 이슈 보기란
             const SizedBox(height: 15),
             const Text(
