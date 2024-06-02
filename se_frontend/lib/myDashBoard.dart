@@ -172,16 +172,39 @@ class _MyDashboardState extends State<MyDashboard> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
                   if (widget.userId == 1)
-                    ElevatedButton(
-                      onPressed: () async {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CreateProject(userId: widget.userId),
-                            ));
-                      },
-                      child: const Text('Create Project'),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        height: 70,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CreateProject(userId: widget.userId),
+                                ));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 205, 220),
+                            fixedSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Text(
+                            'Click here to\nCreate Project',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   const SizedBox(height: 10),
                   const Text('MY PROJECTS',

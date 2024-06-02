@@ -108,47 +108,102 @@ class _CreateProjectState extends State<CreateProject> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _titleController, // 제목 입력 컨트롤러 연결
-              decoration: const InputDecoration(labelText: 'Title'),
-            ),
-            TextField(
-              controller: _leaderController, // 리더 입력 컨트롤러 연결
-              decoration: const InputDecoration(labelText: 'Leader Nickname'),
-              onChanged: (value) async {
-                if (value.isNotEmpty) {
-                  setState(() {
-                    _isLoading = true; // 로딩 상태 설정
-                  });
-                  await _fetchLeaderId(value); // 리더 ID 가져오기
-                  setState(() {
-                    _isLoading = false; // 로딩 상태 해제
-                  });
-                }
-              },
-            ),
-            if (_isLoading) // 로딩 중일 때
-              const CircularProgressIndicator() // 로딩 인디케이터 표시
-            else if (_errorMessage != null) // 에러 메시지가 있으면
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red), // 에러 메시지 스타일 설정
-              )
-            else if (_leaderId != null) // 리더 ID가 있으면
-              Text('Leader ID: $_leaderId'), // 리더 ID 표시
-            const SizedBox(height: 20), // 여백 추가
-            ElevatedButton(
-              onPressed: _leaderId == null
-                  ? null // 리더 ID가 없으면 버튼 비활성화
-                  : () async {
-                      await _createProject(
-                          _titleController.text, _leaderId!); // 프로젝트 생성
-                    },
-              child: const Text('Create Project'), // 버튼 텍스트
-            ),
-          ],
+        child: Form(
+          child: Column(
+            children: [
+              const Text(
+                'Title',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextFormField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Leader Nickname',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              TextFormField(
+                controller: _leaderController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Colors.grey,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                style: const TextStyle(color: Colors.white),
+                onChanged: (value) async {
+                  if (value.isNotEmpty) {
+                    setState(() {
+                      _isLoading = true; // 로딩 상태 설정
+                    });
+                    await _fetchLeaderId(value); // 리더 ID 가져오기
+                    setState(() {
+                      _isLoading = false; // 로딩 상태 해제
+                    });
+                  }
+                },
+              ),
+              if (_isLoading) // 로딩 중일 때
+                const CircularProgressIndicator() // 로딩 인디케이터 표시
+              else if (_errorMessage != null) // 에러 메시지가 있으면
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red), // 에러 메시지 스타일 설정
+                )
+              else if (_leaderId != null) // 리더 ID가 있으면
+                Text('Leader ID: $_leaderId'), // 리더 ID 표시
+              const SizedBox(height: 20), // 여백 추가
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.4,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: _leaderId == null
+                        ? null // 리더 ID가 없으면 버튼 비활성화
+                        : () async {
+                            await _createProject(
+                                _titleController.text, _leaderId!); // 프로젝트 생성
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 255, 205, 220),
+                      fixedSize: const Size.fromHeight(50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                    child: const Text(
+                      'Click here to\nCreate Project',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
