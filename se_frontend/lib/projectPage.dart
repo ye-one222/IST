@@ -24,13 +24,14 @@ class ProjectPage extends StatefulWidget {
 
 class _ProjectPageState extends State<ProjectPage> {
   late Project _project; // 플젝 정보 저장 함수
+  bool _isLeader = false; // 리더 여부 확인 변수
 
   @override
   void initState() {
-    // 여기서 fetchProject 호출해서 백에서 정보 가져옴
     super.initState();
     _project = widget.project; // 위젯에서 전달받은 플젝 정보 초기화
     _fetchProject(); // 서버에서 플젝 정보 가져오기
+    _checkIfLeader(); // 리더 여부 확인
   }
 
   Future<void> _fetchProject() async {
@@ -51,6 +52,28 @@ class _ProjectPageState extends State<ProjectPage> {
       }
     } catch (e) {
       print('Error fetching project: $e');
+    }
+  }
+
+  Future<void> _checkIfLeader() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+            'http://localhost:8081/project/${_project.id}/${widget.userId}'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _isLeader = json.decode(response.body) as bool;
+        });
+      } else {
+        throw Exception('Failed to check leader status');
+      }
+    } catch (e) {
+      print('Error checking leader status: $e');
     }
   }
 
@@ -164,42 +187,44 @@ class _ProjectPageState extends State<ProjectPage> {
               ],
             ),
             const SizedBox(height: 10), //******************* 맴버 추가 부분 */
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: SizedBox(
-                width: formFieldWidth,
-                height: 70,
-                child: ElevatedButton(
-                  onPressed: () async {
-                    final result = await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AddMember(
-                          projectId: _project.id,
-                          userId: widget.userId,
+            if (_isLeader)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: SizedBox(
+                  width: formFieldWidth,
+                  height: 70,
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AddMember(
+                            projectId: _project.id,
+                            userId: widget.userId,
+                          ),
                         ),
-                      ),
-                    );
-                    if (result == true) {
-                      _fetchProject(); // 돌아온 후 프로젝트 데이터 새로 고침
-                      Navigator.pop(context, true); // 변경된 내용 전달
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 255, 205, 220),
-                      fixedSize: const Size.fromHeight(50),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20))),
-                  child: Text(
-                    'Click here to\nadd Member',
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                        fontSize: fontSize * 0.8,
-                        fontWeight: FontWeight.bold),
+                      );
+                      if (result == true) {
+                        _fetchProject(); // 돌아온 후 프로젝트 데이터 새로 고침
+                        Navigator.pop(context, true); // 변경된 내용 전달
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color.fromARGB(255, 255, 205, 220),
+                        fixedSize: const Size.fromHeight(50),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20))),
+                    child: Text(
+                      'Click here to\nadd Member',
+                      style: TextStyle(
+                          color: const Color.fromARGB(255, 0, 0, 0),
+                          fontSize: fontSize * 0.8,
+                          fontWeight: FontWeight.bold),
+                    ),
                   ),
                 ),
               ),
-            ),
             // 이슈 생성란 이동 버튼
             const SizedBox(height: 20),
             Align(
