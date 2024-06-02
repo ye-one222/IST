@@ -250,7 +250,7 @@ class _IssueDetailState extends State<IssueDetail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.issue.title),
+        title: Text("ISSUE OVERALL VIEW"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -352,6 +352,10 @@ class _IssueDetailState extends State<IssueDetail> {
               ),
               const SizedBox(height: 10),
               Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
                 constraints: const BoxConstraints(maxHeight: 200),
                 child: ListView.builder(
                   shrinkWrap: true,
@@ -360,8 +364,17 @@ class _IssueDetailState extends State<IssueDetail> {
                     final comment = _comments[index];
                     return ListTile(
                       title: Text(comment.description),
-                      subtitle: Text(DateFormat('yyyy-MM-dd – kk:mm')
-                          .format(comment.createdDate)),
+                      subtitle: Row(
+                        children: [
+                          Text(DateFormat('yyyy-MM-dd – kk:mm')
+                              .format(comment.createdDate)),
+                          const SizedBox(width: 10),
+                          Text(comment.createrNickname, // 댓글 작성자의 닉네임 표시
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54)),
+                        ],
+                      ),
                     );
                   },
                 ),
