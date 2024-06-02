@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:se_frontend/login_page.dart';
-import 'package:se_frontend/signUp_page.dart';
+import 'package:se_frontend/forUser/logIn_page.dart';
+import 'package:se_frontend/forUser/signUp_page.dart';
 
 class DesktopLayout extends StatelessWidget {
   const DesktopLayout({super.key});

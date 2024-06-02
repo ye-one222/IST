@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:se_frontend/login_page.dart';
-import 'package:se_frontend/signUp_page.dart';
+import 'package:se_frontend/forUser/logIn_page.dart';
+import 'package:se_frontend/forUser/SignUp_page.dart';
 
 class MobileLayout extends StatelessWidget {
   const MobileLayout({Key? key}) : super(key: key);
