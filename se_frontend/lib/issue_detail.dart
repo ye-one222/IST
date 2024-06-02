@@ -203,7 +203,7 @@ class _IssueDetailState extends State<IssueDetail> {
               ),
               DetailBox(
                 item: 'Reporter',
-                content: widget.issue.reporter.toString(),
+                content: widget.issue.reporterNickname,
               ),
               const Text(
                 'Assignee(Fixer)',

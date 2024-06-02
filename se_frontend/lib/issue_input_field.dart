@@ -173,12 +173,7 @@ class _IssueInputFieldState extends State<IssueInputField> {
               ),
               SizedBox(height: 16),
               ElevatedButton(
-                onPressed:
-                    _submitForm, //류: 아래 코드 삭제하고 submit from 함수 호출하면 서버로 전송되지 않나용?
-                /*if (_formKey.currentState!.validate()) { 
-                    _formKey.currentState!.save();
-                    _createIssue();*
-                  }*/
+                onPressed: _submitForm,
                 child: const Text('Create Issue'),
               ),
             ],

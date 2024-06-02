@@ -12,7 +12,7 @@ class IssueListPage extends StatefulWidget {
 
   const IssueListPage({
     super.key,
-    required this.userId, 
+    required this.userId,
   });
 
   @override
@@ -132,8 +132,8 @@ class IssueListPageState extends State<IssueListPage> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => IssueDetail(
-                            issue: issue, userId: widget.userId),
+                        builder: (context) =>
+                            IssueDetail(issue: issue, userId: widget.userId),
                       ),
                     );
                   },
