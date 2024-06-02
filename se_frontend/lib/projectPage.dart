@@ -7,14 +7,13 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:se_frontend/add_member.dart';
 
-// 개별 프로젝트 페이지
 class ProjectPage extends StatefulWidget {
-  final Project project; //현재 프로젝트 전달용
+  final Project project; // 현재 프로젝트 전달용
   final int userId; // 유저 아이디 전달용
 
   const ProjectPage({
     super.key,
-    required this.project, //플젝 정보 전달받음
+    required this.project, // 플젝 정보 전달받음
     required this.userId,
   });
 
@@ -23,14 +22,14 @@ class ProjectPage extends StatefulWidget {
 }
 
 class _ProjectPageState extends State<ProjectPage> {
-  late Project _project; //플젝 정보저장 함수
+  late Project _project; // 플젝 정보 저장 함수
 
   @override
   void initState() {
-    //여기서 fetchProject 호출해서 백에서 정보 가져옴
+    // 여기서 fetchProject 호출해서 백에서 정보 가져옴
     super.initState();
-    _project = widget.project; //위젯에서 전달받은 플젝 정보 초기화
-    _fetchProject(); //서버에서 플젝 정보 가져오기
+    _project = widget.project; // 위젯에서 전달받은 플젝 정보 초기화
+    _fetchProject(); // 서버에서 플젝 정보 가져오기
   }
 
   Future<void> _fetchProject() async {
@@ -55,18 +54,29 @@ class _ProjectPageState extends State<ProjectPage> {
   }
 
   Future<List<Issue>> fetchIssues() async {
-    final response = await http.get(
-      Uri.parse('http://localhost:8081/project/${_project.id}/issues'),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse('http://localhost:8081/project/${_project.id}/issues'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final List<dynamic> issueJson = json.decode(response.body);
-      return issueJson.map((json) => Issue.fromJson(json)).toList();
-    } else {
-      throw Exception('Failed to load issues');
+      if (response.statusCode == 200) {
+        final List<dynamic> issueJson = json.decode(response.body);
+        return issueJson.map((json) {
+          final issueData = json['responseIssue'] as Map<String, dynamic>;
+          return Issue.fromJson({
+            ...issueData,
+            'reporter_nickname': json['reporter_nickname'],
+            'assignee_nickname': json['assignee_nickname'] ?? '',
+          });
+        }).toList();
+      } else {
+        throw Exception('Failed to load issues');
+      }
+    } catch (e) {
+      throw Exception('Error fetching issues: $e');
     }
   }
 
@@ -179,8 +189,7 @@ class _ProjectPageState extends State<ProjectPage> {
                       MaterialPageRoute(
                         builder: (context) => IssueInputField(
                           projectId: _project.id,
-                          userId: widget.userId //플젝 아이디 전달
-                          , //유저 닉네임 전달
+                          userId: widget.userId, // 플젝 아이디 전달
                         ),
                       ),
                     );
@@ -215,7 +224,7 @@ class _ProjectPageState extends State<ProjectPage> {
               height: 230,
               width: double.infinity,
               child: FutureBuilder<List<Issue>>(
-                future: fetchIssues(), //이슈 목록 가져옴
+                future: fetchIssues(), // 이슈 목록 가져옴
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
@@ -234,9 +243,10 @@ class _ProjectPageState extends State<ProjectPage> {
                       child: Row(
                         children: issues.map((issue) {
                           return IssueBox(
-                            issue: issue, userId: widget.userId,
-                            //류: 여기 수정해야되는데 닉네임 부분 뺴기 너무 벅차서 일단 닉네임이라고 해둠
-                          ); //이슈 박스로 리턴
+                            issue: issue,
+                            userId: widget.userId,
+                            // 류: 여기 수정해야되는데 닉네임 부분 뺴기 너무 벅차서 일단 닉네임이라고 해둠
+                          ); // 이슈 박스로 리턴
                         }).toList(),
                       ),
                     ),
