@@ -314,6 +314,12 @@ class _IssueDetailState extends State<IssueDetail> {
               ElevatedButton(
                 // 이슈 변경 버튼
                 onPressed: _updateState,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 255, 156, 204),
+                  minimumSize: const Size(120, 50),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  foregroundColor: Colors.white, // 텍스트 색상 설정
+                ),
                 child: const Text('Update Status'),
               ),
               const SizedBox(height: 25),
@@ -342,8 +348,15 @@ class _IssueDetailState extends State<IssueDetail> {
               ElevatedButton(
                 // 배정 버튼
                 onPressed: _assignUser,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 255, 156, 204),
+                  minimumSize: const Size(120, 50),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  foregroundColor: Colors.white, // 텍스트 색상 설정
+                ),
                 child: const Text('Assign User'),
               ),
+
               // ************** 댓글 부분
               const SizedBox(height: 25),
               const Text(
@@ -391,6 +404,12 @@ class _IssueDetailState extends State<IssueDetail> {
               ElevatedButton(
                 // 댓글 추가 버튼
                 onPressed: _addComment,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 255, 156, 204),
+                  minimumSize: const Size(120, 50),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  foregroundColor: Colors.white, // 텍스트 색상 설정
+                ),
                 child: const Text('Add Comment'),
               ),
             ],
