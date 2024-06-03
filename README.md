@@ -1,5 +1,4 @@
 # 팀: 9조
-
 ## 팀원
 - 류수정
 - 박시연
@@ -8,38 +7,34 @@
 - 현소영
 
 ## 제출물
-1. 소스코드 및 실행 파일
-   - 아직 형식을 모르겠음
+- 소스코드 및 실행 파일
 
-2. 프로그램 사용방법
+## 프로그램 사용방법
+
 ### 2-1. Web
-   a. Flutter를 실행하고(Visual Studio Code), IST 파일안에 `se_frontend` 파일을 연다.
-   
-   b. `lib` 폴더 안에 `main`을 `chrome`으로 실행한다. (오류가 뜰 경우, 터미널에 `pub get` 입력)
-   
-   c. mySQL 을 실행하고, **// 백분들 여기도 부탁드릴게요**
-   
-   d. IntelliJ 를 실행하고 IST 파일안에 `back-end` 파일을 연다 **//백 여러분 여기 버전이나 필요한 정보 써주세용**
-   
-   e. 프론트에서 실행된 크롬의 주소를 복사한다 (예: `http://localhost:00000/`)
-   
-   f. IntelliJ 의 `back-end` 파일의 `src` 파일 안에, `main` 안에, `java` 안에, `utils` 안에, `issueTrackingApplication` 파일을 열어, 복사한 호스트 주소를 입력하고 재실행한다.
-   
-   g. 프론트에서, 번개모양의 `save and hot reload`를 눌러준다.
+a. Visual Studio Code에서 Flutter를 실행하고 IST 폴더 안의 se_frontend 폴더를 연다.
+b. lib 폴더 안의 main 파일을 Chrome으로 실행한다. (오류 발생 시 터미널에 “flutter pub get” 입력)
+c. MySQL을 실행하여 se_schema 데이터베이스를 생성하고, "user_se"라는 유저를 "1234"라는 비밀번호로 생성한다. 이후 se_schema 데이터베이스에 "/DB table 정보"에 첨부된 테이블을 생성한다.
+d. IntelliJ를 실행하고 IST 폴더 안의 back-end 폴더를 연다. Setting에서 Gradle JVM이 Java 21인지 확인하고, Project Structure에서 SDK가 Java 21인지 확인한다.
+e. 프론트에서 실행된 크롬의 주소를 복사한다 (예: http://localhost:00000/).
+f. IntelliJ에서 back-end 폴더 내 src/main/java/utils 내의 issueTrackingApplication 파일을 열고, 복사한 호스트 주소를 입력한 후 재실행한다.
+g. 프론트에서 번개 모양의 save and hot reload 버튼을 클릭한다.
 
 ### 2-2. Console
-   a. Java 콘솔 프로그램은 HTTP 클라이언트를 사용하여 Spring Boot 애플리케이션에서 제공하는 RESTful API 엔드포인트에 요청을 보냅니다.
-   
-   b. Spring Boot 애플리케이션 설정 = Spring Boot 애플리케이션을 설정합니다. 애플리케이션은 엔드포인트를 통해 프로젝트 정보를 제공합니다.
-   
-   c. Java 콘솔 프로그램 작성 = Java 콘솔 프로그램을 작성합니다.
-   
-   d. 콘솔 프로그램 실행 = Spring Boot 애플리케이션이 로컬에서 실행 중일 때, 콘솔 프로그램이 해당 애플리케이션의 엔드포인트에 요청을 보내고 응답을 처리합니다.
+a. Java 콘솔 프로그램은 HTTP 클라이언트를 사용하여 Spring Boot 애플리케이션에서 제공하는 RESTful API 엔드포인트에 요청을 보낸다.
+b. Spring Boot 애플리케이션 설정 - 애플리케이션을 설정하고 엔드포인트를 통해 프로젝트 정보를 제공한다.
+c. Java 콘솔 프로그램 작성 - Java 콘솔 프로그램을 작성한다.
+d. 콘솔 프로그램 실행 - Spring Boot 애플리케이션이 로컬에서 실행 중일 때, 콘솔 프로그램이 해당 애플리케이션의 엔드포인트에 요청을 보내고 응답을 처리한다.
 
-3. `9조_발표_슬라이드.pptx` // ppt 파일
+## 파일 목록
+- 9조_발표_슬라이드.pptx (PPT 파일)
+- 9조_프로젝트_문서.pdf (보고서 파일)
+- IST.zip, se_schema.zip (모든 소스코드 파일)
 
-4. `9조_프로젝트_문서.pdf` // 보고서 파일 
+## GitHub 주소
+[SE-9/IST](https://github.com/SE-9/IST)
 
-5. `IST.zip`, `se_schema.zip` // 모든 소스코드 파일 
+## 시연 영상 Youtube 링크
+https://youtu.be/K-WY0s3xwYg
 
-6. GitHub 주소: [https://github.com/SE-9/IST](https://github.com/SE-9/IST)
+
