@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,51 +16,46 @@ import java.util.stream.Collectors;
 @Setter
 
 public class IssueDTO {
-
     private int id;
     private String title;
     private String description;
-    private int reporter_id;
+    private Integer reporter_id;
     private LocalDateTime date;
     private int fixer_id;
     private int assignee_id;
     private String priority;
     private String state;
     private int pl_id;
-
-    private List<CommentResponse> comments;
+    private List<CommentDTO> comments = new ArrayList<>();
     private int project_id;
 
    public IssueDTO(){
         state = "new";
+   }
+
+    public static IssueDTO toIssueDTO(IssueEntity issueEntity){
+        if (issueEntity.getAssigneeId() == null) {
+            throw new IllegalArgumentException("Assignee ID cannot be null");
+        }
+
+        IssueDTO issueDTO = new IssueDTO();
+        issueDTO.setId(issueEntity.getId());
+        issueDTO.setTitle((issueEntity.getTitle()));
+        issueDTO.setDate(issueEntity.getDate());
+        issueDTO.setDescription(issueEntity.getDescription());
+        issueDTO.setPriority(issueEntity.getPriority());
+        issueDTO.setAssignee_id(issueEntity.getAssigneeId());
+        issueDTO.setFixer_id(issueEntity.getFixerId());
+        issueDTO.setPl_id(issueEntity.getPlId());
+        issueDTO.setReporter_id(issueEntity.getReporterId());
+        issueDTO.setState(issueEntity.getState());
+
+        //issueDTO.setProject_id(issueEntity.getProject().getId());
+        if (issueEntity.getProject() != null) {
+            issueDTO.setProject_id(issueEntity.getProject().getId());
+        }
+
+        return issueDTO;
     }
-
-
-/*
-    public IssueDTO(IssueEntity issue) {
-        this.id = issue.getId();
-        this.title = issue.getTitle();
-        this.comments = issue.getComments().stream()
-                .map(CommentResponse::new)
-                .collect(Collectors.toList());
-    }*/
-
-    /*public IssueDTO(IssueEntity issue) {
-        this.id = issue.getId();
-        this.title = issue.getTitle();
-        this.description = issue.getDescription();
-        this.reporter_id = issue.getReporterId();
-        this.date = issue.getDate();
-
-        this.fixer_id = issue.getFixerId();
-        this.assignee_id = issue.getAssigneeId();
-        this.priority = issue.getPriority();
-        this.state = "new";
-        this.pl_id = issue.getProjectId();
-        this.comments = issue.getComments().stream()
-                .map(CommentResponse::new)
-                .collect(Collectors.toList());
-    }*/
-
 
 }

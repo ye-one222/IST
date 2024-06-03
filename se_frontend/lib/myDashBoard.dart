@@ -1,22 +1,129 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:se_frontend/create_project.dart';
+import 'package:se_frontend/files/issueClass.dart';
+import 'package:se_frontend/files/projectClass.dart';
+import 'package:se_frontend/box/issueBox.dart';
+import 'package:se_frontend/box/projectBox.dart';
 import 'package:se_frontend/issue_list.dart';
-import 'package:se_frontend/project.dart';
+import 'package:http/http.dart' as http;
 
-class MyDashboard extends StatelessWidget {
-  const MyDashboard({super.key});
+Future<List<Project>> fetchProjects(int userId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('http://localhost:8081/project/my/$userId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    //print('HTTP response status: ${response.statusCode}');
+    //print('HTTP response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> projectJson =
+          json.decode(response.body) as List<dynamic>;
+      print('Decoded JSON length: ${projectJson.length}'); // 리스트 길이 출력
+      if (projectJson.isEmpty) {
+        print('No projects found in the database for user: $userId');
+      }
+
+      return projectJson.map((json) {
+        try {
+          print('Project JSON: $json\n');
+          return Project.fromJson(json as Map<String, dynamic>);
+        } catch (e) {
+          print('Error parsing project JSON: $e\n');
+          print('Invalid Project JSON: $json\n'); // 잘못된 JSON 데이터 출력
+          throw Exception('Error parsing project JSON: $e');
+        }
+      }).toList();
+    } else {
+      throw Exception('Failed to load projects');
+    }
+  } catch (e) {
+    throw Exception('Error fetching projects: $e');
+  }
+}
+
+Future<List<Issue>> fetchIssues(int userId) async {
+  try {
+    final response = await http.get(
+      Uri.parse('http://localhost:8081/issue/my/$userId'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+
+    print('HTTP response status: ${response.statusCode}');
+    print('HTTP response body: ${response.body}');
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonResponse =
+          json.decode(response.body) as List<dynamic>;
+      print('Decoded JSON length: ${jsonResponse.length}'); // 리스트 길이 출력
+      if (jsonResponse.isEmpty) {
+        print('No issues found in the database for user: $userId');
+      }
+
+      return jsonResponse.map((issueJson) {
+        try {
+          final issueData = issueJson['responseIssue'] as Map<String, dynamic>;
+          print('Issue JSON: $issueData\n');
+          return Issue.fromJson({
+            ...issueData,
+            'reporter_nickname': issueJson['reporter_nickname'],
+            'assignee_nickname': issueJson['assignee_nickname'] ?? '',
+          });
+        } catch (e) {
+          print('Error parsing issue JSON: $e\n');
+          print('Invalid Issue JSON: $issueJson\n'); // 잘못된 JSON 데이터 출력
+          throw Exception('Error parsing issue JSON: $e');
+        }
+      }).toList();
+    } else {
+      throw Exception('Failed to load issues');
+    }
+  } catch (e) {
+    throw Exception('Error fetching issues: $e');
+  }
+}
+
+class MyDashboard extends StatefulWidget {
+  final int userId;
+  const MyDashboard({super.key, required this.userId});
+
+  @override
+  _MyDashboardState createState() => _MyDashboardState();
+}
+
+class _MyDashboardState extends State<MyDashboard> {
+  late Future<List<Project>> _projectsFuture;
+  late Future<List<Issue>> _issuesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  void _fetchData() {
+    setState(() {
+      _projectsFuture = fetchProjects(widget.userId);
+      _issuesFuture = fetchIssues(widget.userId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
-        // 세로 배치
         children: [
-          // 제목, 검색창
           AppBar(
             title: Row(
               children: <Widget>[
                 const Text(
-                  'MY DASHBOARD',
+                  'MY DASHBOARD ',
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w900,
@@ -24,34 +131,81 @@ class MyDashboard extends StatelessWidget {
                 ),
                 const SizedBox(width: 30),
                 Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: ' 찾으시는 이슈를 검색해보세요! ',
-                      hintStyle: const TextStyle(fontSize: 12), // 힌트 텍스트
-                      border: OutlineInputBorder(
+                  child: TextButton(
+                    // 이슈 검색 버튼
+                    style: TextButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, vertical: 15.0),
+                      backgroundColor: const Color.fromARGB(255, 241, 241, 241),
+                      shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(40.0),
-                        borderSide: BorderSide.none,
                       ),
-                      filled: true,
-                      fillColor: const Color.fromARGB(255, 241, 241, 241),
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20.0, vertical: 0),
-                      suffixIcon: const Icon(Icons.search), // 검색 아이콘
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                IssueListPage(userId: widget.userId //
+                                    )), // userId
+                      );
+                    },
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '찾으시는 이슈를 검색해보세요!',
+                          style: TextStyle(fontSize: 12, color: Colors.black),
+                        ),
+                        Icon(Icons.search, color: Colors.black),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
           ),
-          // 시작 부분
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(15.0),
               child: Column(
-                // 자식 왼쪽 정렬
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  // 내 프로젝트 상자 ***************************
+                  if (widget.userId == 1)
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: SizedBox(
+                        width: MediaQuery.of(context).size.width * 0.4,
+                        height: 70,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      CreateProject(userId: widget.userId),
+                                ));
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                const Color.fromARGB(255, 255, 205, 220),
+                            fixedSize: const Size.fromHeight(50),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Text(
+                            'Click here to\nCreate Project',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 0, 0, 0),
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 10),
                   const Text('MY PROJECTS',
                       style: TextStyle(
@@ -62,31 +216,45 @@ class MyDashboard extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15.0),
-                      color: Color.fromARGB(255, 146, 146, 146),
+                      color: const Color.fromARGB(255, 146, 146, 146),
                     ),
-                    // 흰색 박스
                     height: 230,
                     width: double.infinity,
-                    child: Scrollbar(
-                      //스크롤바 추가
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal, // 수평 스크롤 가능
-                        child: Row(
-                          children: List.generate(
-                            20,
-                            // 많이 생성해봄
-                            (index) => ProjectBox(
-                              title: 'Project ${index + 1}', // 제목 설정
-                              description:
-                                  'Description of project ${index + 1}', // 설명 저장
+                    child: FutureBuilder<List<Project>>(
+                      future: _projectsFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          print('Snapshot error: ${snapshot.error}');
+                          return Center(
+                            child: Text(
+                                'Error loading projects: ${snapshot.error}'),
+                          );
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text('No projects found'));
+                        }
+                        final projects = snapshot.data!;
+                        return Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: projects.map((project) {
+                                print(
+                                    'Project title: ${project.title}'); // 디버깅 메시지
+                                return ProjectBox(
+                                    project: project, userId: widget.userId);
+                              }).toList(),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                   const SizedBox(height: 20),
-                  //내 이슈들 상자*******************************
                   const Text(
                     'MY ISSUES',
                     style: TextStyle(
@@ -98,142 +266,46 @@ class MyDashboard extends StatelessWidget {
                   Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(15.0),
-                      color: Color.fromARGB(255, 146, 146, 146),
+                      color: const Color.fromARGB(255, 146, 146, 146),
                     ),
                     height: 230,
                     width: double.infinity,
-                    child: Scrollbar(
-                      //스크롤바 추가
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        child: Row(
-                          children: List.generate(
-                            9,
-                            (index) => IssueBox(
-                              title: 'Issue ${index + 1}',
-                              assignee: 'assignee ${index + 1}',
-                              reporter: 'reporter ${index + 1}',
-                              status: 'new',
+                    child: FutureBuilder<List<Issue>>(
+                      future: _issuesFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return const Center(
+                              child: Text('Error loading issues'));
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Center(child: Text('No issues found'));
+                        }
+
+                        final issues = snapshot.data!;
+                        return Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: issues.map((issue) {
+                                return IssueBox(
+                                  issue: issue,
+                                  userId: widget.userId,
+                                ); //류: 여기도 닉네임 나중에 뺴야함, 소 : userId로 이름 변경
+                              }).toList(),
                             ),
                           ),
-                        ),
-                      ),
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
             ),
-          ),
-          // 소영언니가 만든 부분으로 이동
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const IssueListPage(),
-                    ),
-                  );
-                },
-                child: const Text('소영언니 이거 누르면됩니당'),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// 박스로 플젝표현
-class ProjectBox extends StatelessWidget {
-  final String title; // 제목 저장 변수
-  final String description; // 설명 저장 변수
-
-  const ProjectBox({
-    required this.title,
-    required this.description,
-  }); // 생성자로 title과 description을 받아옴
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-        // 누르면 프로젝트 페이지로 이동하게 제스쳐
-        onTap: () {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ProjectPage(
-                  title: title,
-                  description: description,
-                ),
-              ));
-        },
-        child: Container(
-          width: 250,
-          height: 150,
-          padding: const EdgeInsets.all(16.0),
-          margin: const EdgeInsets.only(right: 16.0),
-          decoration: BoxDecoration(
-            color: const Color.fromARGB(255, 250, 219, 234),
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                title,
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Text(description),
-            ],
-          ),
-        ));
-  }
-}
-
-//박스로 이슈 표현
-class IssueBox extends StatelessWidget {
-  final String title; // 제목 저장 변수
-
-  final String assignee;
-  final String reporter;
-  final String status;
-
-  const IssueBox({
-    required this.title,
-    required this.assignee,
-    required this.reporter,
-    required this.status,
-  }); // 생성자로 title과 description을 받아옴
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 250,
-      height: 150,
-      padding: const EdgeInsets.all(16.0),
-      margin: const EdgeInsets.only(right: 16.0),
-      decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 250, 219, 234),
-        borderRadius: BorderRadius.circular(15.0),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          Text(status),
-          const SizedBox(height: 10),
-          Text(assignee),
-          Text(reporter),
+          )
         ],
       ),
     );

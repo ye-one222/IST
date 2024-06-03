@@ -1,5 +1,6 @@
 package com.se.demo.dto;
 
+import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
 import com.se.demo.entity.ProjectEntity;
 import lombok.AllArgsConstructor;
@@ -9,7 +10,6 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Setter
 @Getter
@@ -26,7 +26,7 @@ public class ProjectDTO {
 
     private List<MemberDTO> members = new ArrayList<>();
 
-    public ProjectEntity toEntity() {
+    /*public ProjectEntity toEntity() {
         ProjectEntity projectEntity = new ProjectEntity();
         projectEntity.setTitle(this.title);
         projectEntity.setLeader_id(this.leader_id);
@@ -40,5 +40,41 @@ public class ProjectDTO {
             }
         }
         return projectEntity;
+    }*/
+
+    public static ProjectDTO toProjectDTO(ProjectEntity projectEntity) {
+        List<IssueEntity> issueEntities = projectEntity.getIssues();
+        List<IssueDTO> issueDTOs = new ArrayList<>();
+        if(issueEntities!=null){
+            for(IssueEntity issueEntity : issueEntities) {
+                issueDTOs.add(IssueDTO.toIssueDTO(issueEntity));
+            }
+        }
+
+        List<MemberEntity> memberEntities = projectEntity.getMembers();
+        List<MemberDTO> memberDTOs = new ArrayList<>();
+        if(memberEntities!=null){
+            for(MemberEntity memberEntity : memberEntities) {
+                memberDTOs.add(MemberDTO.toMemberDTO(memberEntity));
+            }
+        }
+
+        return new ProjectDTO(
+                projectEntity.getId(),
+                projectEntity.getTitle(),
+                projectEntity.getLeader_id(),
+                issueDTOs,
+                memberDTOs
+        );
+    }
+
+    public static List<ProjectDTO> toProjectDTOList(List<ProjectEntity> projectEntity){
+        List<ProjectDTO> projectDTOs = new ArrayList<>();
+
+        for(ProjectEntity projectEntity1 : projectEntity) {
+            toProjectDTO(projectEntity1);
+            projectDTOs.add(toProjectDTO(projectEntity1));
+        }
+        return projectDTOs;
     }
 }

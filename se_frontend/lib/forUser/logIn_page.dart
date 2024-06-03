@@ -1,37 +1,63 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:se_frontend/signUp_page.dart';
+import 'package:se_frontend/forUser/signUp_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:se_frontend/myDashBoard.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
-  final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _userNameController =
+      TextEditingController(); //사용자 닉네임 입력 컨트롤러
+  final TextEditingController _passwordController =
+      TextEditingController(); //사용자 비번 입력 컨트롤러
 
   void loginUser(BuildContext context) async {
-    String userName = _userNameController.text;
-    String password = _passwordController.text;
+    String nickname = _userNameController.text; //nickname 에 입력된 닉네임 가져옴
+    String password = _passwordController.text; //password 변수에 입력된 비번 가져옴
 
     // 로그인 요청을 보낼 URL
-    Uri url = Uri.parse('http://127.0.0.1:8000/primary_disease_prediction/');
+    Uri url = Uri.parse('http://localhost:8081/user/login');
 
-    // 요청 본문에 포함될 데이터
+    // 요청 본문 (MAP)
     Map<String, dynamic> requestBody = {
-      'userName': userName,
-      'password': password,
+      "nickname": nickname, //입력된 닉네임 전달
+      "password": password, //입력된 비번 전달
     };
+
     try {
+      //예외처리문
       final response = await http.post(
         url,
         body: jsonEncode(requestBody),
         headers: {'Content-Type': 'application/json'},
       );
+
       if (response.statusCode == 200) {
-        Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => LoginPage()));
+        //성공하면
+        final responseBody = jsonDecode(response.body); //응답 온거 JSON 으로 디코딩
+
+        if (responseBody != null && responseBody['user_id'] != null) {
+          // 응답이 null 이 아니고, user id 존재하면
+          int userId = int.parse(
+              responseBody['user_id']); // user_id 추출 (백에서 확인된 유저 닉네임저장한곳)
+
+          // 로그인 성공 시
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  MyDashboard(userId: userId), //대시보드 이동할때 유저 닉네임 전달
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('본문에 nickname 존재하지 않음')),
+          );
+        }
       } else {
         // 로그인 실패
+        print(
+            'Error: ${response.statusCode} ${response.reasonPhrase}'); //오류 상태코드, 이유를 콘솔에 출력시킴
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('로그인에 실패했습니다.')),
         );
@@ -45,13 +71,13 @@ class LoginPage extends StatelessWidget {
     }
   }
 
+//****************************************** UI 부분 ****************************************************** */
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width; //넓이
-    double screenHeight = MediaQuery.of(context).size.height; //높이 가져옴
+    double screenWidth = MediaQuery.of(context).size.width; // 넓이
+    double screenHeight = MediaQuery.of(context).size.height; // 높이 가져옴
 
     // 화면 크기에 따라 폰트 크기와 패딩을 동적으로 설정
-
     double fontSize = screenWidth < 850 ? 18 : 18;
     double paddingSize = screenWidth < 850 ? 20 : 50;
 
@@ -96,7 +122,7 @@ class LoginPage extends StatelessWidget {
                         borderRadius: BorderRadius.circular(20), // 박스 각도 추가
                       ),
 
-                      //height: screenHeight * 0.7, //박스크기
+                      // height: screenHeight * 0.7, //박스크기
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
@@ -107,17 +133,19 @@ class LoginPage extends StatelessWidget {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold),
                           ),
-                          //유저이름 *********************************
+                          // 유저이름 *********************************
                           SizedBox(height: screenHeight * 0.06),
                           TextFormField(
+                            controller: _userNameController,
                             decoration: const InputDecoration(
                               labelText: 'User Name',
                             ),
                             obscureText: false,
                           ),
-                          //비번 *************************************
+                          // 비번 *************************************
                           SizedBox(height: screenHeight * 0.04),
                           TextFormField(
+                            controller: _passwordController,
                             decoration:
                                 const InputDecoration(labelText: 'Password'),
                             obscureText: true, // 비번 가리기
@@ -128,11 +156,7 @@ class LoginPage extends StatelessWidget {
                             width: formFieldWidth,
                             child: ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => MyDashboard()),
-                                );
+                                loginUser(context);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
@@ -150,7 +174,6 @@ class LoginPage extends StatelessWidget {
                           ),
 
                           // or 사진 *************************************
-
                           SizedBox(height: screenHeight * 0.02),
                           Image.asset(
                             'assets/or.png',
@@ -158,13 +181,13 @@ class LoginPage extends StatelessWidget {
                             height: 40,
                           ),
 
-                          //read policy***************************************
+                          // read policy***************************************
                           SizedBox(height: screenHeight * 0.02),
                           TextButton(
                               onPressed: () {},
                               style: ButtonStyle(
-                                overlayColor: MaterialStateProperty.all(
-                                    Colors.transparent),
+                                overlayColor:
+                                    WidgetStateProperty.all(Colors.transparent),
                               ),
                               child: const Text(
                                 "Click here to read ITS's policy",
@@ -177,7 +200,7 @@ class LoginPage extends StatelessWidget {
 
                           // 회원가입 버튼 ******************************
                           SizedBox(height: screenHeight * 0.03),
-                          Container(
+                          SizedBox(
                             width: formFieldWidth,
                             child: OutlinedButton(
                               onPressed: () {
@@ -199,11 +222,9 @@ class LoginPage extends StatelessWidget {
                                 "don't have account? Sign Up",
                                 style: TextStyle(
                                   color: const Color.fromARGB(255, 0, 0, 0),
-
                                   fontSize: fontSize * 0.7,
-
                                   fontWeight: FontWeight.w200,
-                                  //decoration: TextDecoration.underline,
+                                  // decoration: TextDecoration.underline,
                                 ),
                               ),
                             ),

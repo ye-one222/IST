@@ -17,7 +17,7 @@ public class MemberService {
 
     //회원가입 (조건 확인 X)
     public MemberEntity signup(MemberDTO memberDTO){
-        MemberEntity memberEntity = MemberEntity.toMemberEntityBW(memberDTO);
+        MemberEntity memberEntity = MemberEntity.toMemberEntity(memberDTO);
         return memberRepository.save(memberEntity);
     }
 
@@ -41,24 +41,15 @@ public class MemberService {
         return memberEntity;
     }
 
-    public MemberDTO toMemberDTO(MemberEntity memberEntity) {
-        MemberDTO memberDTO = new MemberDTO();
-        memberDTO.setUser_id(memberEntity.getUser_id());
-        memberDTO.setNickname(memberEntity.getNickname());
-        memberDTO.setPassword(memberEntity.getPassword());
-        //memberDTO.setProjects(toProjectDTOList(memberEntity.getProjects())); 이거 있어야 나의 project의 member의 project 정보가 올바르게 나오는데, 이거 실행하면 스택오버플로우 발생해서.. 그리고 내 동료의 project들을 내가 굳이 알아야 할 필요는 없잖앙
-        return memberDTO;
-    }
-
     //nickname(String)을 입력받아 memberEntity를 return함
     public MemberEntity getLoginUserById(String userNickname){
         if(userNickname == null) return null;
 
         //Optional<MemberEntity> optionalMemberEntityOfYW = MemberRepository.findByNickname(userNickname);
-        Optional<MemberEntity> optionalMemberEntityOfYW = memberRepository.findByNickname(userNickname);
-        if(optionalMemberEntityOfYW.isEmpty()) return null;
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByNickname(userNickname);
+        if(optionalMemberEntity.isEmpty()) return null;
 
-        return optionalMemberEntityOfYW.get();
+        return optionalMemberEntity.get();
     }
 
     //loginNickname(String)을 입력받아 memberEntity를 return함
@@ -73,8 +64,36 @@ public class MemberService {
         return optionalMemberEntity.get();
     }
 
-    public boolean checkId(String id) {
-        return memberRepository.existsById(Integer.parseInt(id));
+
+  /*  public boolean checkId(String id) {
+        //return memberRepository.existsById(Integer.parseInt(id));
+        try {
+            int parsedId = Integer.parseInt(id);
+            return memberRepository.existsById(parsedId);
+        } catch (NumberFormatException e) {
+            // id가 정수로 변환할 수 없는 경우 false를 반환
+            return false;
+        }*/
+
+    public boolean checkId(String nickname) {
+        try {
+            System.out.println(nickname);
+            if(memberRepository.existsByNickname(nickname)){
+                return false;
+            }
+            else{
+                return true;
+            }
+        } catch (NumberFormatException e) {
+            return false;
+        }
     }
 
+    //해당 nickname을 가진 user의 id를 반환
+    public int findByNickname(String nickname){
+        MemberEntity memberEntity = memberRepository.findByNickname(nickname)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid user nickname"));
+        return memberEntity.getUser_id();
+
+    }
 }

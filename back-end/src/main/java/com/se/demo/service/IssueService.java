@@ -1,8 +1,9 @@
 package com.se.demo.service;
-import com.se.demo.dto.ChangeIssueStateRequest;
 import com.se.demo.dto.IssueDTO;
+import com.se.demo.dto.ResponseIssueDTO;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
+import com.se.demo.entity.ProjectEntity;
 import com.se.demo.repository.IssueRepository;
 import com.se.demo.repository.MemberRepository;
 import com.se.demo.repository.ProjectRepository;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -29,81 +31,87 @@ public class IssueService {
 
     public IssueEntity createIssue(IssueDTO issueDTO){
         //System.out.println("PROJECTID:"+issueDTO.getProject_id());
-        IssueEntity issueEntity = toIssueEntity(issueDTO);
+        //여기서 유저디티오에서 플젝아이디 뽑고 그걸로 플젝 레포에서 리더 아이디값 받아오고 그걸로 이슈에 setPl_id넣기
+        //projectRepository.findById(issueDTO.getProject_id()).get().getLeader_id();
+        System.out.println("issueDTO.getProject_id() = "+issueDTO.getProject_id());
+        int pl_id = projectRepository.findById(issueDTO.getProject_id())
+                .orElseThrow(() -> new RuntimeException("해당 프로젝트 아이디가 디비에 없음")).getLeader_id();
+
+        System.out.println("pl id = "+pl_id);
+        issueDTO.setPl_id(pl_id);
+
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
         issueRepository.save(issueEntity);
         return issueEntity;
     }
 
-    public IssueDTO findById(Integer id){
+    public ResponseIssueDTO findById(Integer id){
         Optional<IssueEntity> optionalIssueEntity = issueRepository.findById(id);
         if(optionalIssueEntity.isPresent()){
             IssueEntity issueEntity = optionalIssueEntity.get();
-            return IssueService.toIssueDTO(issueEntity);
+            //이슈엔티티를 그대로 바꾸고
+            IssueDTO issueDTO = IssueDTO.toIssueDTO(issueEntity);
+            ResponseIssueDTO responseIssueDTO = new ResponseIssueDTO(issueDTO);
+            //여기서 받아온 이슈디티오 에서 픽서랑 어사이니 아이디가지고 멤버 디티오 받아오고
+            Optional<MemberEntity> assignMemberEntity = memberRepository.findById(issueDTO.getAssignee_id());
+            Optional<MemberEntity> reporterMemberEntity = memberRepository.findById(issueDTO.getReporter_id());
+
+            //그 멤버 디티오에서 닉네임 추출해서 responseIssue에 set 함수로 넣기
+            assignMemberEntity.ifPresent(entity -> responseIssueDTO.setAssignee_nickname(entity.getNickname()));
+            reporterMemberEntity.ifPresent(entity -> responseIssueDTO.setReporter_nickname(entity.getNickname()));
+            return responseIssueDTO;
         }else {
             return null;
         }
     }
 
-    public List<IssueDTO> findMyIssues(Integer user_id){
+    public List<ResponseIssueDTO> findMyIssues(Integer user_id){
         Optional<List<IssueEntity>> optionalIssueEntities = Optional.ofNullable(issueRepository.findByReporterIdOrAssigneeIdOrPlId(user_id, user_id, user_id));
         if(optionalIssueEntities.isPresent()){
             List<IssueEntity> issueEntities = optionalIssueEntities.get();
             //map으로 엔티티리스트를 DTO리스트로 변경
-            List<IssueDTO> issueDTOs = issueEntities.stream()
-                    .map(IssueService::toIssueDTO)
+            List<ResponseIssueDTO> responseIssueDTOList = issueEntities.stream()
+                    .map(issueEntity -> {
+                        ResponseIssueDTO responseIssueDTO = new ResponseIssueDTO(IssueDTO.toIssueDTO(issueEntity));
+                        // 여기서 fixer_nickname과 assignee_nickname을 설정할 수 있음
+                        String reporterNickname = memberRepository.findById(issueEntity.getReporterId())
+                                .orElseThrow(() -> new RuntimeException("해당 리포터가 디비에 없음")).getNickname();
+                        responseIssueDTO.setReporter_nickname(reporterNickname);
+                        //여기서 assignee_nickname
+                        //상태가 new인지 확인하는 로직 필요하네
+                        if(!Objects.equals(issueEntity.getState(), "new")){
+                            String assigneeNickname = memberRepository.findById(issueEntity.getAssigneeId())
+                                    .orElseThrow(() -> new RuntimeException("해당 담당자가 디비에 없음")).getNickname();
+                            responseIssueDTO.setAssignee_nickname(assigneeNickname);
+                        }
+                        return responseIssueDTO;
+                    })
                     .collect(Collectors.toList());
-            return issueDTOs;
+            return responseIssueDTOList;
         }else{
             return null;
         }
     }
 
-    public IssueDTO updateIssue(IssueDTO issueDTO){
-        IssueEntity issueEntity = toIssueEntity(issueDTO);
+    /*public IssueDTO updateIssue(IssueDTO issueDTO){
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
         issueRepository.save(issueEntity);
-        return IssueService.toIssueDTO(issueEntity);
-    }
+        return IssueDTO.toIssueDTO(issueEntity);
+    }*/
+    //test에서 오류나서 아래와 같이 바꿈
+    public IssueDTO updateIssue(IssueDTO issueDTO) {
+        IssueEntity issueEntity = IssueEntity.toIssueEntity(issueDTO, projectRepository);
 
-
-    public static IssueDTO toIssueDTO(IssueEntity issueEntity){
-        IssueDTO issueDTO = new IssueDTO();
-        issueDTO.setId(issueEntity.getId());
-        issueDTO.setTitle((issueEntity.getTitle()));
-        issueDTO.setDate(issueEntity.getDate());
-        issueDTO.setDescription(issueEntity.getDescription());
-        issueDTO.setPriority(issueEntity.getPriority());
-        issueDTO.setAssignee_id(issueEntity.getAssigneeId());
-        issueDTO.setFixer_id(issueEntity.getFixerId());
-        issueDTO.setPl_id(issueEntity.getPlId());
-        issueDTO.setReporter_id(issueEntity.getReporterId());
-        issueDTO.setState(issueEntity.getState());
-
-        //issueDTO.setProject_id(issueEntity.getProject().getId());
-        if (issueEntity.getProject() != null) {
-            issueDTO.setProject_id(issueEntity.getProject().getId());
+        // Validate assignee_id
+        if (issueDTO.getAssignee_id() != 0) {
+            memberRepository.findById(issueDTO.getAssignee_id())
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
         }
 
-        return issueDTO;
+        issueRepository.save(issueEntity);
+        return IssueDTO.toIssueDTO(issueEntity);
     }
 
-
-    public IssueEntity toIssueEntity(IssueDTO issueDTO) { //static 빼도 되나여
-        IssueEntity issueEntity = new IssueEntity();
-        issueEntity.setId(issueDTO.getId());
-        issueEntity.setTitle(issueDTO.getTitle());
-        issueEntity.setDescription(issueDTO.getDescription());
-        issueEntity.setReporterId(issueDTO.getReporter_id());
-        issueEntity.setFixerId(issueDTO.getFixer_id());
-        issueEntity.setAssigneeId(issueDTO.getAssignee_id());
-        issueEntity.setPriority(issueDTO.getPriority());
-        issueEntity.setState(issueDTO.getState());
-        issueEntity.setPlId(issueDTO.getPl_id());
-
-        issueEntity.setProject(projectRepository.findById(issueDTO.getProject_id())
-                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID")));;
-
-        return issueEntity;
-    }
 
     public List<IssueDTO> search(String keyword) {
         //title에 keyword가 포함된 issueEntity List 반환
@@ -128,7 +136,23 @@ public class IssueService {
                 .collect(Collectors.toList());
 
         return issueEntityList.stream()
-                .map(IssueService::toIssueDTO)
+                .map(IssueDTO::toIssueDTO)
                 .collect(Collectors.toList());
+    }
+
+    public boolean checkProjMember(Integer userId, IssueDTO issueDTO) {
+        //userId가 프로젝트의 멤버인지
+        //이슈디티오의 플젝아이디로 플젝 찾고
+        Optional<ProjectEntity> projectEntity = projectRepository.findById(issueDTO.getProject_id());
+        //플젝에서 멤버 map으로 아이디 있는지 검사해야지
+        if(projectEntity.isPresent()){
+            List<MemberEntity> memberEntities = projectEntity.get().getMembers();
+            for (MemberEntity member : memberEntities) {
+                if( member.getUser_id() == userId){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

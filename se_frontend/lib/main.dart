@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:se_frontend/home_page.dart';
+import 'package:se_frontend/forUser/home_page.dart';
 
 void main() {
   runApp(const MyHomePage());
@@ -20,3 +20,4 @@ class MyHomePage extends StatelessWidget {
     );
   }
 }
+//커밋 확인 메세지 222 
