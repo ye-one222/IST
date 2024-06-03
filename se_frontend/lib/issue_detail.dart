@@ -47,10 +47,8 @@ class _IssueDetailState extends State<IssueDetail> {
     final url = 'http://localhost:8081/api/issue/${widget.issue.id}/comments';
     try {
       final response = await http.get(Uri.parse(url));
-      print('###$response###${widget.issue.id}');
       if (response.statusCode == 201 || response.statusCode == 200) {
         final List<dynamic> commentsJson = json.decode(response.body);
-        print(commentsJson);
         setState(() {
           _comments =
               commentsJson.map((json) => Comment.fromJson(json)).toList();
@@ -75,9 +73,10 @@ class _IssueDetailState extends State<IssueDetail> {
     const url = 'http://localhost:8081/api/comments/create'; // 수정된 URL
     final headers = {"Content-Type": "application/json"};
     final body = json.encode({
-      "creater_id": widget.userId, // 여기에서 creator_id를 creater_id로 변경
+      "issue_id": widget.issue.id,
       "description": _commentController.text,
-      "issue_id": widget.issue.id
+
+      "creater_id": widget.userId, // 여기에서 creator_id를 creater_id로 변경
     });
 
     try {
@@ -87,8 +86,9 @@ class _IssueDetailState extends State<IssueDetail> {
         body: body,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         final newComment = Comment.fromJson(json.decode(response.body));
+
         setState(() {
           _comments.add(newComment);
           _commentController.clear();

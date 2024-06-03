@@ -27,7 +27,9 @@ import org.springframework.web.bind.annotation.*;
 import javax.xml.stream.events.Comment;
 import java.security.Principal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -82,9 +84,15 @@ public class CommentController {
             CommentEntity savedCommentEntity = commentService.save(request, issueId);
             CommentDTO savedComment = commentService.toCommentDTO(savedCommentEntity);
 
+            Map<String, Object> response = new HashMap<>();
+            response.put("creater_id", savedComment.getCreater_id());
+            response.put("description", savedComment.getDescription());
+            response.put("created_date", savedComment.getCreated_date());
+            response.put("issue_id", savedComment.getIssue_id());
+
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
-                    .body(savedComment);
+                    .body(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);

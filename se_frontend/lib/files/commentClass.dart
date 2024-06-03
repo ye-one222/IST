@@ -16,14 +16,15 @@ class Comment {
   });
 
   factory Comment.fromJson(Map<String, dynamic> json) {
-    final commentDto = json['commentDTO'];
+    final commentDto = json['commentDTO'] ?? json;
     return Comment(
-      id: commentDto['id'],
-      createrId: commentDto['creater_id'],
-      description: commentDto['description'],
-      createdDate: DateTime.parse(commentDto['created_date']),
-      issueId: commentDto['issue_id'],
-      createrNickname: json['creater_nickname'],
+      id: commentDto['id'] ?? 0, // 기본값을 0으로 설정
+      createrId: commentDto['creater_id'] ?? 0,
+      description: commentDto['description'] ?? '',
+      createdDate: DateTime.parse(
+          commentDto['created_date'] ?? DateTime.now().toIso8601String()),
+      issueId: commentDto['issue_id'] ?? 0,
+      createrNickname: json['creater_nickname'] ?? '',
     );
   }
 }
