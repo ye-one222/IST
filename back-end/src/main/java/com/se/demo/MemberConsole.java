@@ -48,6 +48,7 @@ public class MemberConsole {
 
 
         // Accept user input for nickname
+        System.out.println("회원가입");
         System.out.print("Enter nickname: ");
         String nickname = scanner.next();
         memberEntity.setNickname(nickname);
