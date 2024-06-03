@@ -266,6 +266,11 @@ class _IssueDetailState extends State<IssueDetail> {
                 item: 'Description',
                 content: widget.issue.description,
               ),
+              DetailBox(
+                item: 'Reported Date',
+                content:
+                    DateFormat('yyyy-MM-dd HH:mm:ss').format(widget.issue.date),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
