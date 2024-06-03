@@ -2,6 +2,7 @@ package com.se.demo.service;
 
 import com.se.demo.IssueTrackingApplication;
 import com.se.demo.dto.CommentDTO;
+import com.se.demo.dto.ResponseCommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
@@ -24,7 +25,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = IssueTrackingApplication.class)
@@ -75,11 +78,11 @@ class CommentServiceTest {
 
     @Test
     void saveComment() {
-        when(memberRepository.findByNickname(anyString())).thenReturn(Optional.of(memberEntity));
+        when(memberRepository.findById(anyInt())).thenReturn(Optional.of(memberEntity));
         when(issueRepository.findById(anyInt())).thenReturn(Optional.of(issueEntity));
         when(commentRepository.save(any(CommentEntity.class))).thenReturn(commentEntity);
 
-        CommentEntity savedComment = commentService.save(commentDTO, "testUser", 1);
+        CommentEntity savedComment = commentService.save(commentDTO, 1);
 
         assertNotNull(savedComment);
         assertEquals("Test comment", savedComment.getDescription());
@@ -88,11 +91,13 @@ class CommentServiceTest {
     @Test
     void findAllByIssueId() {
         when(commentRepository.findByIssueId(anyInt())).thenReturn(Arrays.asList(commentEntity));
+        when(memberRepository.findById(anyInt())).thenReturn(Optional.of(memberEntity)); // Ensure this line exists
 
-        List<CommentDTO> comments = commentService.findAllByIssueId(1);
+        List<ResponseCommentDTO> comments = commentService.findAllByIssueId(1);
 
         assertNotNull(comments);
         assertEquals(1, comments.size());
-        assertEquals("Test comment", comments.get(0).getDescription());
+        assertEquals("Test comment", comments.get(0).getCommentDTO().getDescription());
+        assertEquals("testUser", comments.get(0).getCreater_nickname());
     }
 }

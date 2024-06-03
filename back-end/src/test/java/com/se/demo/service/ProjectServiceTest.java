@@ -149,14 +149,22 @@ public class ProjectServiceTest {
     @Test
     @Transactional
     void testInviteMember() {
+        MemberEntity newMemberEntity = new MemberEntity();
+        newMemberEntity.setUser_id(2);
+        newMemberEntity.setNickname("NewMember");
+
+        // 기존 설정에 추가
         Mockito.when(projectRepository.findById(1)).thenReturn(Optional.of(projectEntity));
-        Mockito.when(memberRepository.findById(2)).thenReturn(Optional.of(memberEntity));
+        Mockito.when(memberRepository.findById(2)).thenReturn(Optional.of(newMemberEntity));
+        Mockito.when(projectRepository.save(Mockito.any(ProjectEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         ProjectDTO updatedProjectDTO = projectService.inviteMember(1, 2);
 
         assertThat(updatedProjectDTO).isNotNull();
         assertThat(updatedProjectDTO.getMembers()).isNotEmpty();
+        assertThat(updatedProjectDTO.getMembers().stream().anyMatch(member -> member.getUser_id() == 2)).isTrue();
     }
+
 
     @Test
     void testCountAnalysis() {

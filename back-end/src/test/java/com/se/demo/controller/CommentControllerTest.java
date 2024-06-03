@@ -2,6 +2,7 @@ package com.se.demo.controller;
 
 import com.se.demo.IssueTrackingApplication;
 import com.se.demo.dto.CommentDTO;
+import com.se.demo.dto.ResponseCommentDTO;
 import com.se.demo.entity.CommentEntity;
 import com.se.demo.entity.IssueEntity;
 import com.se.demo.entity.MemberEntity;
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -56,6 +56,7 @@ class CommentControllerTest {
     private MemberEntity memberEntity;
     private IssueEntity issueEntity;
     private CommentEntity commentEntity;
+    private ResponseCommentDTO responseCommentDTO;
 
     @BeforeEach
     void setUp() {
@@ -84,23 +85,26 @@ class CommentControllerTest {
         commentEntity.setCreatedDate(LocalDateTime.now());
         commentEntity.setCreaterId(memberEntity);
         commentEntity.setIssue(issueEntity);
+
+        responseCommentDTO = new ResponseCommentDTO(commentDTO, memberEntity.getNickname());
     }
 
     @Test
     void getCommentsForIssue() throws Exception {
-        List<CommentDTO> comments = Arrays.asList(commentDTO);
+        List<ResponseCommentDTO> comments = Arrays.asList(responseCommentDTO);
         when(commentService.findAllByIssueId(anyInt())).thenReturn(comments);
 
         mockMvc.perform(get("/api/issue/1/comments")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$[0].description").value("Test comment"));
+                .andExpect(jsonPath("$[0].commentDTO.description").value("Test comment"))
+                .andExpect(jsonPath("$[0].creater_nickname").value("testUser"));
     }
 
     @Test
     void saveComment() throws Exception {
-        when(commentService.save(Mockito.any(CommentDTO.class), anyString(), anyInt())).thenReturn(commentEntity);
+        when(commentService.save(Mockito.any(CommentDTO.class), anyInt())).thenReturn(commentEntity);
         when(commentService.toCommentDTO(Mockito.any(CommentEntity.class))).thenReturn(commentDTO);
 
         mockMvc.perform(post("/api/comments/create")
